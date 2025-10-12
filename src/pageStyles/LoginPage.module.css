@@ -1,0 +1,110 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.imageSection {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.backgroundImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+.formSection {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #ffffff;
+}
+
+.formContent {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.switchMode {
+  margin-top: 1.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.switchText {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.switchButton {
+  background: none;
+  border: none;
+  color: #4a90e2;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.switchButton:hover {
+  color: #357abd;
+  text-decoration: underline;
+}
+
+.footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  width: 100%;
+  text-align: center;
+}
+
+.footerLink {
+  font-size: 0.9rem;
+  color: #4a90e2;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footerLink:hover {
+  color: #357abd;
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .imageSection {
+    min-height: 250px;
+    flex: none;
+  }
+
+  .formSection {
+    flex: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .formSection {
+    padding: 1rem;
+  }
+
+  .imageSection {
+    min-height: 200px;
+  }
+}
