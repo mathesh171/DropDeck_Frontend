@@ -1,0 +1,65 @@
+.chatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background-color: #6fa8c4;
+  border-bottom: 1px solid #5a8ba3;
+}
+
+.groupInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.groupAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff, #e0e0e0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6fa8c4;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.groupDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupName {
+  font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0;
+}
+
+.groupMeta {
+  font-size: 13px;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 16px;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  color: #ffffff;
+}
+
+.iconButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

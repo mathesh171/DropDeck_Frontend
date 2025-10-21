@@ -1,0 +1,256 @@
+.createGroupPage {
+  display: flex;
+  height: 100vh;
+  background-color: #f0f2f5;
+}
+
+.sidebar {
+  width: 400px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: #6fa8c4;
+  gap: 12px;
+}
+
+.backButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  color: #6fa8c4;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backButton:hover {
+  background-color: #f0f2f5;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 20px;
+  background-color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.createButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  color: #6fa8c4;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.formContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.formCard {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  margin-left: -200px;
+}
+
+.title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.avatarSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.avatarPreview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.avatarPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  font-size: 48px;
+  color: #aaa;
+}
+
+.fileInput {
+  display: none;
+}
+
+.avatarLabel {
+  padding: 8px 20px;
+  background-color: #6fa8c4;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.avatarLabel:hover {
+  background-color: #5a8ba3;
+}
+
+.formGroup {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  color: #667781;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.input,
+.textarea,
+.dateInput,
+.select {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.input:focus,
+.textarea:focus,
+.dateInput:focus,
+.select:focus {
+  border-color: #6fa8c4;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.clearButton {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clearButton:hover {
+  color: #666;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 14px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 14px;
+  background-color: #6fa8c4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #5a8ba3;
+}
+
+.submitButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.brandingSection {
+  position: absolute;
+  right: 100px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.brandText {
+  font-size: 64px;
+  color: #6fa8c4;
+  font-weight: 300;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 1200px) {
+  .brandingSection {
+    display: none;
+  }
+
+  .formCard {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  .formCard {
+    margin: 20px;
+    padding: 30px 20px;
+  }
+}

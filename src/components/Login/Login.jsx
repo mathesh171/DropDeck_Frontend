@@ -206,7 +206,7 @@ const Login = ({ onSubmit, error, isLoading }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaVerified, setCaptchaVerified] = useState(true);
   const [captchaError, setCaptchaError] = useState('');
 
   const handleSubmit = (e) => {
@@ -279,7 +279,7 @@ const Login = ({ onSubmit, error, isLoading }) => {
           <a href="#forgot" className={styles.forgotLink}>Forgot Password?</a>
         </div>
         
-        <ImageCaptcha onVerify={handleCaptchaVerify} />
+        {/* <ImageCaptcha onVerify={handleCaptchaVerify} /> */}
         
         {captchaError && <div className={styles.error}>{captchaError}</div>}
         {error && <div className={styles.error}>{error}</div>}

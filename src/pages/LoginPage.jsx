@@ -61,6 +61,7 @@ const LoginPage = () => {
 
         // Store user data
         localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', data.token);
         
         // Navigate to dashboard
         navigate('/dashboard', { state: { username: userData.username } });
@@ -139,6 +140,7 @@ const LoginPage = () => {
         };
 
         localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', data.token);
         navigate('/dashboard', { state: { username: userData.username } });
       } else {
         setError(data.message || 'Sign up failed');
