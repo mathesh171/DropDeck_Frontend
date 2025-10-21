@@ -37,7 +37,7 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8084/api/auth/login', {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,13 +116,13 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8084/api/auth/register', {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username: username.trim(),
+          body: JSON.stringify({
+          name: username.trim(),
           email: email.trim(),
           password: password.trim(),
         }),
