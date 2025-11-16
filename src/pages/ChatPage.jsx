@@ -129,9 +129,10 @@ const ChatPage = () => {
               group={selectedGroup} 
               onLogout={handleLogout}
             />
-            <ChatWindow 
+            <ChatWindow
               group={selectedGroup}
               user={user}
+              onNewMessage={() => fetchGroups(localStorage.getItem('token'))}
             />
           </>
         ) : (

@@ -63,7 +63,8 @@ const ChatWindow = ({ group, user }) => {
         }
       );
       if (response.ok) {
-        fetchMessages();
+        await fetchMessages();
+        if (onNewMessage) onNewMessage();  // Inform parent to refresh groups
       }
     } catch (error) {
       console.error('Error sending message:', error);
