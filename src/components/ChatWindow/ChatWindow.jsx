@@ -25,7 +25,6 @@ const ChatWindow = ({ group, user }) => {
   const fetchMessages = async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
-    
     try {
       const response = await fetch(
         `http://localhost:5000/api/messages/groups/${group.group_id}/messages?limit=100&offset=0`,
@@ -35,7 +34,6 @@ const ChatWindow = ({ group, user }) => {
           }
         }
       );
-
       if (response.ok) {
         const data = await response.json();
         setMessages(data.messages || []);
@@ -49,7 +47,6 @@ const ChatWindow = ({ group, user }) => {
 
   const handleSendMessage = async (content, messageType = 'text') => {
     const token = localStorage.getItem('token');
-    
     try {
       const response = await fetch(
         `http://localhost:5000/api/messages/groups/${group.group_id}/messages`,
@@ -65,10 +62,8 @@ const ChatWindow = ({ group, user }) => {
           })
         }
       );
-
       if (response.ok) {
-        const data = await response.json();
-        setMessages(prev => [...prev, data.message]);
+        fetchMessages();
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -83,6 +78,7 @@ const ChatWindow = ({ group, user }) => {
     );
   }
 
+  // MAIN: Render messages from bottom (latest last)
   return (
     <>
       <div className={styles.messagesContainer}>
@@ -93,9 +89,9 @@ const ChatWindow = ({ group, user }) => {
               <p className={styles.emptyHint}>Start the conversation!</p>
             </div>
           ) : (
-            messages.map((message, index) => (
+            messages.slice().reverse().map((message, index) => (
               <MessageBubble
-                key={message.message_id || index}
+                key={message.message_id ? `msg-${message.message_id}` : `idx-${index}-${Date.now()}`}
                 message={message}
                 isOwn={message.user_id === user?.user_id}
               />
@@ -104,7 +100,6 @@ const ChatWindow = ({ group, user }) => {
           <div ref={messagesEndRef} />
         </div>
       </div>
-      
       <MessageInput onSendMessage={handleSendMessage} />
     </>
   );

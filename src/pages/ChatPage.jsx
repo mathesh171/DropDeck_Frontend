@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../pageStyles/ChatPage.module.css';
 import GroupList from '../components/GroupList/GroupList';
 import ChatWindow from '../components/ChatWindow/ChatWindow';
 import ChatHeader from '../components/ChatHeader/ChatHeader';
+import UserProfile from '../components/UserProfile/UserProfile';
 
 const ChatPage = () => {
   const [groups, setGroups] = useState([]);
@@ -11,19 +12,15 @@ const ChatPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
-    // Check authentication
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
-
-    // Fetch user profile
     fetchUserProfile(token);
-    
-    // Fetch user groups
     fetchGroups(token);
   }, [navigate]);
 
@@ -72,15 +69,33 @@ const ChatPage = () => {
     navigate('/login');
   };
 
-  const filteredGroups = groups.filter(group =>
-    group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleProfileUpdate = (updated) => {
+    setUser(prev => ({ ...prev, ...updated }));
+    setShowProfile(false);
+    // You can make an API call here if you want to update the profile on the backend too
+  };
+
+  // Sidebar: sort by recent message
+  const filteredGroups = groups
+    .filter(group =>
+      group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const aTime = a.last_message ? new Date(a.last_message.created_at) : new Date(a.created_at);
+      const bTime = b.last_message ? new Date(b.last_message.created_at) : new Date(b.created_at);
+      return bTime - aTime;
+    });
 
   return (
     <div className={styles.chatPage}>
       <div className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <div className={styles.userAvatar}>
+          <div
+            className={styles.userAvatar}
+            onClick={() => setShowProfile(true)}
+            style={{ cursor: "pointer" }}
+            title="Show profile"
+          >
             {user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div className={styles.searchContainer}>
@@ -100,7 +115,6 @@ const ChatPage = () => {
             +
           </button>
         </div>
-        
         <GroupList
           groups={filteredGroups}
           selectedGroup={selectedGroup}
@@ -127,6 +141,15 @@ const ChatPage = () => {
           </div>
         )}
       </div>
+
+      {showProfile && (
+        <UserProfile
+          user={user}
+          onUpdate={handleProfileUpdate}
+          onClose={() => setShowProfile(false)}
+          onLogout={handleLogout}
+        />
+      )}
     </div>
   );
 };

@@ -1,0 +1,88 @@
+.profileOverlay {
+  position: fixed;
+  top:0; left:0; right:0; bottom:0;
+  background: rgba(0,0,0,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+.profileCard {
+  background:#fff;
+  border-radius:12px;
+  padding:32px 24px;
+  min-width:320px;
+  box-shadow:0 2px 16px rgba(0,0,0,0.13);
+  position:relative;
+}
+.closeButton {
+  position:absolute;
+  top:16px;right:16px;
+  background:none;
+  border:none;
+  font-size:24px;
+  color:#999;
+  cursor:pointer;
+}
+.fieldGroup {
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.value {
+  margin-right:10px;
+  font-weight:500;
+  color:#333;
+}
+.input {
+  padding:7px 12px;
+  border:1px solid #e0e0e0;
+  border-radius:6px;
+  font-size:15px;
+}
+.editButton, .saveButton, .cancelButton {
+  margin-left:5px;
+  background:#6fa8c4;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  padding:4px 10px;
+  font-size:14px;
+  cursor:pointer;
+  transition:background 0.15s;
+}
+.cancelButton {
+  background:#e0e0e0;
+  color:#444;
+}
+.editButton:hover, .saveButton:hover {
+  background:#357abd;
+}
+.cancelButton:hover {
+  background:#ccc;
+}
+
+label {
+  min-width:70px;
+  color: #667781;
+  font-weight: 500;
+}
+
+
+.logoutButton {
+  width: 100%;
+  margin-top: 14px;
+  background: #d9534f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s;
+}
+.logoutButton:hover {
+  background: #c9302c;
+}

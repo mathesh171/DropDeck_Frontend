@@ -2,13 +2,11 @@ import styles from './MessageBubble.module.css';
 
 const MessageBubble = ({ message, isOwn }) => {
   const formatTime = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
-  };
+  const date = new Date(timestamp);
+  return isNaN(date.getTime())
+    ? ""
+    : date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+};
 
   return (
     <div className={`${styles.messageWrapper} ${isOwn ? styles.own : styles.other}`}>

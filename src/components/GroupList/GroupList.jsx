@@ -2,11 +2,11 @@ import styles from './GroupList.module.css';
 
 const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
   const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     const now = new Date();
     const diff = now - date;
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
     if (days === 0) {
       return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
     } else if (days === 1) {
@@ -25,15 +25,22 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
       .slice(0, 2);
   };
 
+  // Sort groups so the group with most recent message (or created date as fallback) is at the top
+  const sortedGroups = [...groups].sort((a, b) => {
+    const aTime = a.last_message ? new Date(a.last_message.created_at) : new Date(a.created_at);
+    const bTime = b.last_message ? new Date(b.last_message.created_at) : new Date(b.created_at);
+    return bTime - aTime;
+  });
+
   return (
     <div className={styles.groupList}>
-      {groups.length === 0 ? (
+      {sortedGroups.length === 0 ? (
         <div className={styles.emptyState}>
           <p>No groups yet</p>
           <p className={styles.emptyHint}>Create your first group to get started</p>
         </div>
       ) : (
-        groups.map(group => (
+        sortedGroups.map(group => (
           <div
             key={group.group_id}
             className={`${styles.groupItem} ${
@@ -48,11 +55,17 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
               <div className={styles.groupHeader}>
                 <h3 className={styles.groupName}>{group.group_name}</h3>
                 <span className={styles.groupDate}>
-                  {formatDate(group.created_at)}
+                  {formatDate(
+                    group.last_message
+                      ? group.last_message.created_at
+                      : group.created_at
+                  )}
                 </span>
               </div>
-              <p className={styles.groupDescription}>
-                {group.description || 'No description'}
+              <p className={styles.groupMessage}>
+                {group.last_message
+                  ? group.last_message.content
+                  : 'No messages yet'}
               </p>
             </div>
           </div>
