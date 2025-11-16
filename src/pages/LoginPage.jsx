@@ -52,9 +52,9 @@ const LoginPage = () => {
 
       if (response.ok) {
         const userData = {
-          username: data.username,
-          email: data.email || email,
-          id: data.id || Date.now(),
+          username: data.user?.name || data.name || 'User',  
+          email: data.user?.email || data.email || email,
+          id: data.user?.user_id || data.id || Date.now(),
           token: data.token,
           loginTime: new Date().toISOString(),
         };
@@ -64,7 +64,7 @@ const LoginPage = () => {
         localStorage.setItem('token', data.token);
         
         // Navigate to dashboard
-        navigate('/dashboard', { state: { username: userData.username } });
+        navigate('/chat');
       } else {
         setError(data.message || 'Invalid credentials');
       }
@@ -141,7 +141,7 @@ const LoginPage = () => {
 
         localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('token', data.token);
-        navigate('/dashboard', { state: { username: userData.username } });
+        navigate('/chat');  
       } else {
         setError(data.message || 'Sign up failed');
       }
