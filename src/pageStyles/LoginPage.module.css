@@ -1,7 +1,18 @@
-.container {
-  display: flex;
+.pageWrapper {
   min-height: 100vh;
   background-color: #f8f9fa;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
 }
 
 .imageSection {
@@ -9,13 +20,20 @@
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .backgroundImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.9;
+  width: 80%;
+  height: auto;
+  max-height: 70%;
+  object-fit: contain;
+  border-radius: 24px;
+  padding: 1rem;
+  opacity: 0.95;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .formSection {
@@ -25,6 +43,7 @@
   justify-content: center;
   padding: 2rem;
   background-color: #ffffff;
+  transition: all 0.3s ease;
 }
 
 .formContent {
@@ -37,6 +56,7 @@
 
 .switchMode {
   margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
   text-align: center;
   width: 100%;
 }
@@ -63,48 +83,40 @@
   text-decoration: underline;
 }
 
-.footer {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-  width: 100%;
-  text-align: center;
-}
-
-.footerLink {
-  font-size: 0.9rem;
-  color: #4a90e2;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footerLink:hover {
-  color: #357abd;
-  text-decoration: underline;
-}
-
-/* Responsive Design */
 @media (max-width: 968px) {
   .container {
-    flex-direction: column;
+    min-height: 100vh;
   }
 
   .imageSection {
-    min-height: 250px;
-    flex: none;
+    padding: 1rem;
+  }
+
+  .backgroundImage {
+    width: 70%;
+    max-height: 60%;
   }
 
   .formSection {
-    flex: 1;
+    padding: 1.5rem;
   }
 }
 
 @media (max-width: 640px) {
-  .formSection {
-    padding: 1rem;
+  .imageSection {
+    max-width: 0;
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    overflow: hidden;
+    flex: 0 0 0;
+    transition: max-width 0.35s ease, max-height 0.35s ease, opacity 0.35s ease;
   }
 
-  .imageSection {
-    min-height: 200px;
+  .formSection {
+    flex: 1 1 100%;
+    width: 100%;
+    padding: 1.25rem;
   }
 }
