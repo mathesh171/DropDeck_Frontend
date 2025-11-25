@@ -46,7 +46,6 @@ const ChatWindow = ({ group, user }) => {
   };
 
   const handleSendMessage = async (content, messageType = 'text') => {
-    const token = localStorage.getItem('token');
     try {
       const response = await fetch(
         `http://localhost:5000/api/messages/groups/${group.group_id}/messages`,
@@ -54,17 +53,14 @@ const ChatWindow = ({ group, user }) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
-          body: JSON.stringify({
-            content,
-            message_type: messageType
-          })
+          body: JSON.stringify({ content, message_type: messageType }),
         }
       );
       if (response.ok) {
         await fetchMessages();
-        if (onNewMessage) onNewMessage();  // Inform parent to refresh groups
+        if (onNewMessage) onNewMessage();
       }
     } catch (error) {
       console.error('Error sending message:', error);
