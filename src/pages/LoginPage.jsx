@@ -14,6 +14,15 @@ const LoginPage = () => {
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+  const safeParseJson = async (response) => {
+    const text = await response.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { message: text };
+    }
+  };
+
   const handleLoginSubmit = async ({ email, password }) => {
     setError('');
 
@@ -32,31 +41,27 @@ const LoginPage = () => {
 
       if (!response.ok) {
         if (response.status === 429) {
-          const text = await response.text();
-          setError('Too many attempts. Please wait a few seconds and try again.');
+          setError('Too many attempts. Please wait a moment and try again.');
           return;
         }
-        const data = await response.json().catch(() => ({}));
-        setError(data.message || 'Login failed.');
+        const data = await safeParseJson(response);
+        setError(data.error || data.message || 'Login failed.');
         return;
       }
 
       const data = await response.json();
-      if (response.ok) {
-        const userData = {
-          username: data.user?.name || data.name || 'User',
-          email: data.user?.email || data.email || email,
-          id: data.user?.user_id || data.id || Date.now(),
-          token: data.token,
-          loginTime: new Date().toISOString(),
-        };
 
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', data.token);
-        navigate('/chat');
-      } else {
-        setError(data.message || 'Invalid credentials');
-      }
+      const userData = {
+        username: data.user?.name || data.name || 'User',
+        email: data.user?.email || data.email || email,
+        id: data.user?.user_id || data.id || Date.now(),
+        token: data.token,
+        loginTime: new Date().toISOString(),
+      };
+
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', data.token);
+      navigate('/chat');
     } catch (err) {
       console.error(err);
       setError('Login failed. Please try again.');
@@ -89,22 +94,24 @@ const LoginPage = () => {
         }),
       });
 
+      if (!response.ok) {
+        const data = await safeParseJson(response);
+        setError(data.error || data.message || 'Sign up failed');
+        return;
+      }
+
       const data = await response.json();
 
-      if (response.ok) {
-        const userData = {
-          username: username.trim(),
-          email: email.trim(),
-          id: data.id || Date.now(),
-          loginTime: new Date().toISOString(),
-        };
+      const userData = {
+        username: username.trim(),
+        email: email.trim(),
+        id: data.user?.user_id || data.id || Date.now(),
+        loginTime: new Date().toISOString(),
+      };
 
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', data.token);
-        navigate('/chat');
-      } else {
-        setError(data.message || 'Sign up failed');
-      }
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', data.token);
+      navigate('/chat');
     } catch (err) {
       console.error(err);
       setError('Sign up failed. Please try again.');
@@ -170,7 +177,6 @@ const LoginPage = () => {
               </>
             )}
           </div>
-          
         </div>
       </div>
     </div>
