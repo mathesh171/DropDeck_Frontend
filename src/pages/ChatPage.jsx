@@ -89,6 +89,30 @@ const ChatPage = () => {
     <div className={styles.chatPage}>
       <div className={styles.sidebar}>
         {/* sidebar header code including user avatar click to open profile */}
+        <div className={styles.sidebarHeader}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {user?.avatar_url && (
+                <img
+                  src={user.avatar_url}
+                  alt="User Avatar"
+                  style={{ width: 40, height: 40, borderRadius: "50%", marginRight: "8px", cursor: "pointer" }}
+                  onClick={() => setShowProfile(true)}
+                />
+              )}
+              <span style={{ fontWeight: 500 }}>{user?.username || "User"}</span>
+            </div>
+            <button onClick={handleLogout} style={{ marginLeft: 12 }}>
+              Logout
+            </button>
+          </div>
+          <button
+            onClick={handleCreateGroup}
+            style={{ marginBottom: "12px", width: "100%" }}
+          >
+            + Create Group
+          </button>
+        </div>
         <GroupList groups={filteredGroups} selectedGroup={selectedGroup} onSelectGroup={handleGroupSelect} />
       </div>
 
