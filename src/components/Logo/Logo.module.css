@@ -1,36 +1,44 @@
 .logoContainer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-bottom: 2rem;
 }
 
 .logoCircle {
-  width: 80px;
-  height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4a90e2, #357abd);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+  box-shadow: none;         
+  overflow: visible;        
 }
 
-.logoText {
-  color: white;
-  font-size: 2.5rem;
-  font-weight: 700;
+.logoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: transparent;
 }
 
-.logoInitial {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1a1a1a;
-  text-align: center;
+.wordmark {
   margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.drop {
+  background: linear-gradient(90deg, #2da7ff, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.deck {
+  color: #0f2645;
 }
