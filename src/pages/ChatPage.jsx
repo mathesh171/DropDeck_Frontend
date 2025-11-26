@@ -6,14 +6,13 @@ import GroupList from '../components/GroupList/GroupList';
 import ChatWindow from '../components/ChatWindow/ChatWindow';
 import ChatHeader from '../components/ChatHeader/ChatHeader';
 import UserProfile from '../components/UserProfile/UserProfile';
-
 import LogoutIcon from '../assets/Logout.png';
 import CreateGroupIcon from '../assets/CreateGroup.png';
 
 const ChatPage = () => {
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [user, setUser] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const socketRef = useRef(null);
@@ -21,7 +20,10 @@ const ChatPage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) { navigate('/login'); return; }
+    if (!token) {
+      navigate('/login');
+      return;
+    }
     fetchUserProfile(token);
     fetchGroups(token);
   }, [navigate]);
@@ -30,9 +32,9 @@ const ChatPage = () => {
     if (user && !socketRef.current) {
       socketRef.current = io('http://localhost:5000');
       socketRef.current.emit('joinGroups', user.user_id);
-
-      socketRef.current.on('groupListUpdate', () => {
+      socketRef.current.on('messageUpdate', () => {
         fetchGroups(localStorage.getItem('token'));
+        if (selectedGroup) setSelectedGroup(prev => ({ ...prev }));
       });
     }
     return () => {
@@ -41,41 +43,37 @@ const ChatPage = () => {
         socketRef.current = null;
       }
     };
-  }, [user]);
+  }, [user, selectedGroup]);
 
   const fetchUserProfile = async (token) => {
     try {
       const response = await fetch('http://localhost:5000/api/auth/profile', {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
       }
-    } catch (error) {
-      console.error('Profile error:', error);
-    }
+    } catch {}
   };
 
   const fetchGroups = async (token) => {
     try {
       const response = await fetch('http://localhost:5000/api/groups', {
-        headers: {
-          'Authorization': `Bearer ${token || localStorage.getItem('token')}`
-        }
+        headers: { Authorization: `Bearer ${token || localStorage.getItem('token')}` }
       });
       if (response.ok) {
         const data = await response.json();
         setGroups(data.groups || []);
       }
-    } catch (error) {
-      console.error('Group fetch error:', error);
-    }
+    } catch {}
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate('/login', { replace: true });
+    window.location.reload();
   };
 
   const filteredGroups = groups.filter(g =>
@@ -85,20 +83,15 @@ const ChatPage = () => {
   return (
     <div className={styles.chatPage}>
       <div className={styles.sidebar}>
-
-        {/* ---------------------------------------
-             ⭐ Updated: Profile → Search → Create → Logout
-        ----------------------------------------- */}
         <div className={styles.sidebarHeader}>
           <div className={styles.topIcons}>
-            <div className={styles.iconCircle} title="Profile" onClick={() => setShowProfile(true)}>
+            <div className={styles.iconCircle} onClick={() => setShowProfile(true)}>
               {user?.avatar_url ? (
                 <img src={user.avatar_url} alt="User" className={styles.profileImg} />
               ) : (
                 <span className={styles.defaultUserIcon}>U</span>
               )}
             </div>
-
             <input
               type="text"
               placeholder="Search groups..."
@@ -106,28 +99,20 @@ const ChatPage = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-
-            <div className={styles.iconCircle} title="Create Group" onClick={() => navigate('/create-group')}>
+            <div className={styles.iconCircle} onClick={() => navigate('/create-group')}>
               <img src={CreateGroupIcon} className={styles.smallIcon} alt="Create" />
             </div>
-
-            <div className={styles.iconCircle} title="Logout" onClick={handleLogout}>
+            <div className={styles.iconCircle} onClick={handleLogout}>
               <img src={LogoutIcon} className={styles.smallIcon} alt="Logout" />
             </div>
-
           </div>
         </div>
-
-        {/* Groups List */}
         <GroupList
           groups={filteredGroups}
           selectedGroup={selectedGroup}
           onSelectGroup={setSelectedGroup}
         />
-
       </div>
-
-      {/* Main Content */}
       <div className={styles.mainContent}>
         {selectedGroup ? (
           <>
@@ -135,14 +120,16 @@ const ChatPage = () => {
             <ChatWindow
               group={selectedGroup}
               user={user}
-              onNewMessage={() => fetchGroups(localStorage.getItem('token'))}
+              onNewMessage={() => {
+                fetchGroups(localStorage.getItem('token'));
+                setSelectedGroup(prev => ({ ...prev }));
+              }}
             />
           </>
         ) : (
           <div className={styles.emptyState}>Select a group to start chatting</div>
         )}
       </div>
-
       {showProfile && (
         <UserProfile
           user={user}

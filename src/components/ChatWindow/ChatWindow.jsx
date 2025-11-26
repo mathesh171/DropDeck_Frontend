@@ -2,25 +2,36 @@ import { useState, useEffect, useRef } from 'react';
 import styles from './ChatWindow.module.css';
 import MessageBubble from '../MessageBubble/MessageBubble';
 import MessageInput from '../MessageInput/MessageInput';
+import { io } from "socket.io-client";
 
-const ChatWindow = ({ group, user }) => {
+const ChatWindow = ({ group, user, onNewMessage }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const socket = useRef(null);
 
   useEffect(() => {
-    if (group) {
+    socket.current = io("http://localhost:5000");
+
+    socket.current.emit("joinGroupRoom", group.group_id);
+
+    socket.current.on("newMessage", () => {
       fetchMessages();
-    }
+      if (onNewMessage) onNewMessage();
+    });
+
+    return () => {
+      socket.current.disconnect();
+    };
   }, [group]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (group) fetchMessages();
+  }, [group]);
 
-  const scrollToBottom = () => {
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [messages]);
 
   const fetchMessages = async () => {
     setLoading(true);
@@ -38,16 +49,13 @@ const ChatWindow = ({ group, user }) => {
         const data = await response.json();
         setMessages(data.messages || []);
       }
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-    } finally {
-      setLoading(false);
-    }
+    } catch {}
+    setLoading(false);
   };
 
   const handleSendMessage = async (content, messageType = 'text') => {
     try {
-      const response = await fetch(
+      await fetch(
         `http://localhost:5000/api/messages/groups/${group.group_id}/messages`,
         {
           method: 'POST',
@@ -58,13 +66,12 @@ const ChatWindow = ({ group, user }) => {
           body: JSON.stringify({ content, message_type: messageType }),
         }
       );
-      if (response.ok) {
-        await fetchMessages();
-        if (onNewMessage) onNewMessage();
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
+
+      socket.current.emit("sendMessage", { groupId: group.group_id });
+
+      fetchMessages();
+      if (onNewMessage) onNewMessage();
+    } catch {}
   };
 
   if (loading) {
@@ -75,7 +82,6 @@ const ChatWindow = ({ group, user }) => {
     );
   }
 
-  // MAIN: Render messages from bottom (latest last)
   return (
     <>
       <div className={styles.messagesContainer}>
@@ -88,7 +94,7 @@ const ChatWindow = ({ group, user }) => {
           ) : (
             messages.slice().reverse().map((message, index) => (
               <MessageBubble
-                key={message.message_id ? `msg-${message.message_id}` : `idx-${index}-${Date.now()}`}
+                key={message.message_id || index}
                 message={message}
                 isOwn={message.user_id === user?.user_id}
               />

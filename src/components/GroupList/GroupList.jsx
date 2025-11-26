@@ -25,7 +25,6 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
       .slice(0, 2);
   };
 
-  // Sort groups so the group with most recent message (or created date as fallback) is at the top
   const sortedGroups = [...groups].sort((a, b) => {
     const aTime = a.last_message ? new Date(a.last_message.created_at) : new Date(a.created_at);
     const bTime = b.last_message ? new Date(b.last_message.created_at) : new Date(b.created_at);
@@ -49,8 +48,17 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
             onClick={() => onSelectGroup(group)}
           >
             <div className={styles.groupAvatar}>
-              {getInitials(group.group_name)}
+              {group.group_image ? (
+                <img
+                  src={`http://localhost:5000/uploads/${group.group_image}`}
+                  alt={group.group_name}
+                  className={styles.groupAvatarImg}
+                />
+              ) : (
+                getInitials(group.group_name)
+              )}
             </div>
+
             <div className={styles.groupInfo}>
               <div className={styles.groupHeader}>
                 <h3 className={styles.groupName}>{group.group_name}</h3>
