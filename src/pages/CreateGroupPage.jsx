@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../pageStyles/CreateGroupPage.module.css';
+import BackIcon from '../assets/Back.png';
 
 const CreateGroupPage = () => {
   const navigate = useNavigate();
@@ -11,25 +12,22 @@ const CreateGroupPage = () => {
     access_type: 'public'
   });
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result);
-      };
+      reader.onloadend = () => setAvatarPreview(reader.result);
       reader.readAsDataURL(file);
+      setAvatarFile(file);
     }
   };
 
@@ -37,68 +35,45 @@ const CreateGroupPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
-
-    // Format expiry_time to ISO format
-    const expiryDate = new Date(formData.expiry_time).toISOString();
-
     try {
+      const form = new FormData();
+      form.append('group_name', formData.group_name);
+      form.append('description', formData.description);
+      form.append('expiry_time', new Date(formData.expiry_time).toISOString());
+      form.append('access_type', formData.access_type);
+      if (avatarFile) form.append('group_image', avatarFile);
+
       const response = await fetch('http://localhost:5000/api/groups/create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ...formData,
-          expiry_time: expiryDate
-        })
+        headers: { Authorization: `Bearer ${token}` },
+        body: form
       });
 
       const data = await response.json();
-
-      if (response.ok) {
-        navigate('/chat');
-      } else {
-        setError(data.error || 'Failed to create group');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-      console.error('Error creating group:', err);
+      if (response.ok) navigate('/chat');
+      else setError(data.error || 'Failed to create group');
+    } catch {
+      setError('Network error. Try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBack = () => {
-    navigate('/chat');
-  };
-
   return (
     <div className={styles.createGroupPage}>
-      <div className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <button className={styles.backButton} onClick={handleBack}>
-            ←
-          </button>
-          <input
-            type="text"
-            placeholder="Search groups..."
-            className={styles.searchInput}
-          />
-          <button className={styles.createButton}>+</button>
-        </div>
+      <div className={styles.backButtonContainer}>
+        <button className={styles.backButton} onClick={() => navigate('/chat')}>
+          <img src={BackIcon} alt="Back" />
+        </button>
       </div>
-
-      <div className={styles.formContainer}>
+      <div className={styles.formWrapper}>
         <div className={styles.formCard}>
           <h2 className={styles.title}>Create New Group</h2>
-          
           <form onSubmit={handleSubmit}>
             <div className={styles.avatarSection}>
               <div className={styles.avatarPreview}>
@@ -121,7 +96,6 @@ const CreateGroupPage = () => {
                 Choose Group Photo
               </label>
             </div>
-
             <div className={styles.formGroup}>
               <input
                 type="text"
@@ -132,9 +106,7 @@ const CreateGroupPage = () => {
                 required
                 className={styles.input}
               />
-              <button type="button" className={styles.clearButton}>×</button>
             </div>
-
             <div className={styles.formGroup}>
               <textarea
                 name="description"
@@ -144,9 +116,7 @@ const CreateGroupPage = () => {
                 className={styles.textarea}
                 rows="3"
               />
-              <button type="button" className={styles.clearButton}>×</button>
             </div>
-
             <div className={styles.formGroup}>
               <label className={styles.label}>Expiry Date</label>
               <input
@@ -158,7 +128,6 @@ const CreateGroupPage = () => {
                 className={styles.dateInput}
               />
             </div>
-
             <div className={styles.formGroup}>
               <label className={styles.label}>Access Type</label>
               <select
@@ -172,21 +141,11 @@ const CreateGroupPage = () => {
                 <option value="approval">Approval Required</option>
               </select>
             </div>
-
             {error && <div className={styles.error}>{error}</div>}
-
-            <button 
-              type="submit" 
-              className={styles.submitButton}
-              disabled={loading}
-            >
+            <button type="submit" className={styles.submitButton} disabled={loading}>
               {loading ? 'Creating...' : 'Create Group'}
             </button>
           </form>
-        </div>
-
-        <div className={styles.brandingSection}>
-          <h1 className={styles.brandText}>Drop Deck</h1>
         </div>
       </div>
     </div>

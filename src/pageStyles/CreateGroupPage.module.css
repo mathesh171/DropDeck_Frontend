@@ -1,103 +1,79 @@
 .createGroupPage {
+  position: relative;
+  min-height: 100vh;
+  background: #f0f2f5;
   display: flex;
-  height: 100vh;
-  background-color: #f0f2f5;
+  justify-content: center;
+  padding-top: 80px;
 }
 
-.sidebar {
-  width: 400px;
-  background-color: #ffffff;
-  border-right: 1px solid #e0e0e0;
-}
-
-.sidebarHeader {
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  background-color: #6fa8c4;
-  gap: 12px;
+.backButtonContainer {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 20;
 }
 
 .backButton {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background-color: #ffffff;
-  color: #6fa8c4;
+  background: #ffffff;
   border: none;
-  font-size: 24px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: .2s;
 }
 
 .backButton:hover {
-  background-color: #f0f2f5;
+  transform: scale(1.08);
+  background: #e8edf0;
 }
 
-.searchInput {
-  flex: 1;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 20px;
-  background-color: #ffffff;
-  font-size: 14px;
-  outline: none;
+.backButton img {
+  width: 24px;
+  height: 24px;
 }
 
-.createButton {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #ffffff;
-  color: #6fa8c4;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-}
-
-.formContainer {
-  flex: 1;
+.formWrapper {
+  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  position: relative;
 }
 
 .formCard {
-  background-color: #ffffff;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 500px;
-  margin-left: -200px;
+  max-width: 450px;
+  background: #ffffff;
+  padding: 35px 30px;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
 }
 
 .title {
+  text-align: center;
+  margin-bottom: 25px;
   font-size: 24px;
   color: #333;
-  margin-bottom: 30px;
-  text-align: center;
 }
 
 .avatarSection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 30px;
+  text-align: center;
+  margin-bottom: 25px;
 }
 
 .avatarPreview {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background-color: #f0f2f5;
+  background: #f0f2f5;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin: 0 auto 12px auto;
   overflow: hidden;
 }
 
@@ -117,30 +93,21 @@
 }
 
 .avatarLabel {
-  padding: 8px 20px;
-  background-color: #6fa8c4;
-  color: white;
+  padding: 8px 16px;
+  background: #6fa8c4;
+  color: #fff;
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.2s;
+  transition: .2s;
 }
 
 .avatarLabel:hover {
-  background-color: #5a8ba3;
+  background: #5a8ba3;
 }
 
 .formGroup {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.label {
-  display: block;
-  font-size: 14px;
-  color: #667781;
-  margin-bottom: 8px;
-  font-weight: 500;
+  margin-bottom: 18px;
 }
 
 .input,
@@ -148,13 +115,12 @@
 .dateInput,
 .select {
   width: 100%;
-  padding: 12px 40px 12px 16px;
-  border: 1px solid #e0e0e0;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 15px;
   outline: none;
-  transition: border-color 0.2s;
-  font-family: inherit;
+  transition: .2s;
 }
 
 .input:focus,
@@ -169,88 +135,48 @@
   min-height: 80px;
 }
 
-.clearButton {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #999;
-  cursor: pointer;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.clearButton:hover {
-  color: #666;
+.label {
+  margin-bottom: 6px;
+  display: block;
+  font-size: 14px;
+  color: #555;
 }
 
 .error {
   color: #d32f2f;
-  font-size: 14px;
-  margin-bottom: 16px;
   text-align: center;
+  margin-bottom: 10px;
 }
 
 .submitButton {
   width: 100%;
   padding: 14px;
-  background-color: #6fa8c4;
+  background: #6fa8c4;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: .2s;
 }
 
 .submitButton:hover:not(:disabled) {
-  background-color: #5a8ba3;
+  background: #5a8ba3;
 }
 
 .submitButton:disabled {
-  background-color: #ccc;
+  background: #b6ccd8;
   cursor: not-allowed;
 }
 
-.brandingSection {
-  position: absolute;
-  right: 100px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.brandText {
-  font-size: 64px;
-  color: #6fa8c4;
-  font-weight: 300;
-  letter-spacing: 2px;
-}
-
-@media (max-width: 1200px) {
-  .brandingSection {
-    display: none;
-  }
-
+@media (max-width: 600px) {
   .formCard {
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    display: none;
+    margin: 0 15px;
+    padding: 25px 20px;
   }
 
-  .formCard {
-    margin: 20px;
-    padding: 30px 20px;
+  .title {
+    font-size: 22px;
   }
 }
