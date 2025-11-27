@@ -26,21 +26,20 @@ const JoinGroupPage = () => {
       const response = await fetch('http://localhost:5000/api/groups/discover', {
         headers: { Authorization: `Bearer ${token}` }
       });
+
       if (!response.ok) {
         setError('Failed to load groups.');
         setGroups([]);
         setLoading(false);
         return;
       }
+
       const data = await response.json();
-      const all = data.groups || data || [];
+      const all = data.groups || data;
       const visible = all.filter(
-        g =>
-          g.accesstype === 'public' ||
-          g.accesstype === 'approval' ||
-          g.access_type === 'public' ||
-          g.access_type === 'approval'
+        (g) => g.access_type === 'public' || g.access_type === 'approval'
       );
+
       setGroups(visible);
     } catch {
       setError('Network error. Try again.');
@@ -57,10 +56,10 @@ const JoinGroupPage = () => {
       return;
     }
     setError('');
-    setJoiningGroupId(group.groupid || group.group_id);
+    setJoiningGroupId(group.group_id);
     try {
-      const groupId = group.groupid || group.group_id;
-      const accessType = group.accesstype || group.access_type;
+      const groupId = group.group_id;
+      const accessType = group.access_type;
       const isPublic = accessType === 'public';
       const endpoint = isPublic
         ? `http://localhost:5000/api/groups/${groupId}/join`
@@ -86,8 +85,8 @@ const JoinGroupPage = () => {
     }
   };
 
-  const filteredGroups = groups.filter(g =>
-    (g.groupname || g.group_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredGroups = groups.filter((g) =>
+    (g.group_name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -115,27 +114,33 @@ const JoinGroupPage = () => {
           <div className={styles.empty}>No groups available to join.</div>
         ) : (
           <div className={styles.groupList}>
-            {filteredGroups.map(group => {
-              const accessType = group.accesstype || group.access_type;
+            {filteredGroups.map((group) => {
+              const accessType = group.access_type;
               const isPublic = accessType === 'public';
               const isApproval = accessType === 'approval';
-              const label = isPublic ? 'Public' : isApproval ? 'Approval Required' : accessType;
+              const label = isPublic
+                ? 'Public'
+                : isApproval
+                ? 'Approval Required'
+                : accessType;
               const buttonText = isPublic ? 'Join' : 'Request';
-              const joining = joiningGroupId === (group.groupid || group.group_id);
+              const joining = joiningGroupId === group.group_id;
               return (
                 <div
-                  key={group.groupid || group.group_id}
+                  key={group.group_id}
                   className={styles.groupItem}
                 >
                   <div className={styles.groupInfo}>
                     <div className={styles.groupNameRow}>
                       <span className={styles.groupName}>
-                        {group.groupname || group.group_name}
+                        {group.group_name}
                       </span>
                       <span className={styles.badge}>{label}</span>
                     </div>
                     {group.description && (
-                      <p className={styles.groupDescription}>{group.description}</p>
+                      <p className={styles.groupDescription}>
+                        {group.description}
+                      </p>
                     )}
                   </div>
                   <button
