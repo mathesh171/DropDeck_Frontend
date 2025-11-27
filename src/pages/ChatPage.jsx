@@ -6,8 +6,8 @@ import GroupList from '../components/GroupList/GroupList';
 import ChatWindow from '../components/ChatWindow/ChatWindow';
 import ChatHeader from '../components/ChatHeader/ChatHeader';
 import UserProfile from '../components/UserProfile/UserProfile';
-import LogoutIcon from '../assets/Logout.png';
 import CreateGroupIcon from '../assets/CreateGroup.png';
+import JoinGroupIcon from '../assets/JoinGroup.png';
 
 const ChatPage = () => {
   const [groups, setGroups] = useState([]);
@@ -31,10 +31,13 @@ const ChatPage = () => {
   useEffect(() => {
     if (user && !socketRef.current) {
       socketRef.current = io('http://localhost:5000');
-      socketRef.current.emit('joinGroups', user.user_id);
+      socketRef.current.emit('joinGroups', user.user_id || user.userid);
       socketRef.current.on('messageUpdate', () => {
         fetchGroups(localStorage.getItem('token'));
         if (selectedGroup) setSelectedGroup(prev => ({ ...prev }));
+      });
+      socketRef.current.on('groupListUpdate', () => {
+        fetchGroups(localStorage.getItem('token'));
       });
     }
     return () => {
@@ -64,20 +67,13 @@ const ChatPage = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        setGroups(data.groups || []);
+        setGroups(data.groups || data || []);
       }
     } catch {}
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    navigate('/login', { replace: true });
-    window.location.reload();
-  };
-
   const filteredGroups = groups.filter(g =>
-    g.group_name.toLowerCase().includes(searchTerm.toLowerCase())
+    (g.group_name || g.groupname || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -86,8 +82,8 @@ const ChatPage = () => {
         <div className={styles.sidebarHeader}>
           <div className={styles.topIcons}>
             <div className={styles.iconCircle} onClick={() => setShowProfile(true)}>
-              {user?.avatar_url ? (
-                <img src={user.avatar_url} alt="User" className={styles.profileImg} />
+              {user?.avatar_url || user?.avatarurl ? (
+                <img src={user.avatar_url || user.avatarurl} alt="User" className={styles.profileImg} />
               ) : (
                 <span className={styles.defaultUserIcon}>U</span>
               )}
@@ -102,8 +98,8 @@ const ChatPage = () => {
             <div className={styles.iconCircle} onClick={() => navigate('/create-group')}>
               <img src={CreateGroupIcon} className={styles.smallIcon} alt="Create" />
             </div>
-            <div className={styles.iconCircle} onClick={handleLogout}>
-              <img src={LogoutIcon} className={styles.smallIcon} alt="Logout" />
+            <div className={styles.iconCircle} onClick={() => navigate('/join-group')}>
+              <img src={JoinGroupIcon} className={styles.smallIcon} alt="Join" />
             </div>
           </div>
         </div>
@@ -116,7 +112,7 @@ const ChatPage = () => {
       <div className={styles.mainContent}>
         {selectedGroup ? (
           <>
-            <ChatHeader group={selectedGroup} onLogout={handleLogout} />
+            <ChatHeader group={selectedGroup} />
             <ChatWindow
               group={selectedGroup}
               user={user}
@@ -135,7 +131,12 @@ const ChatPage = () => {
           user={user}
           onUpdate={(u) => setUser(prev => ({ ...prev, ...u }))}
           onClose={() => setShowProfile(false)}
-          onLogout={handleLogout}
+          onLogout={() => {
+            localStorage.clear();
+            sessionStorage.clear();
+            navigate('/login', { replace: true });
+            window.location.reload();
+          }}
         />
       )}
     </div>
