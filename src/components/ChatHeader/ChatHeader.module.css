@@ -5,6 +5,7 @@
   padding: 10px 16px;
   background-color: #6fa8c4;
   border-bottom: 1px solid #5a8ba3;
+  position: relative;
 }
 
 .groupInfo {
@@ -24,6 +25,13 @@
   color: #6fa8c4;
   font-weight: 600;
   font-size: 16px;
+  overflow: hidden;
+}
+
+.groupAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .groupDetails {
@@ -62,4 +70,48 @@
 
 .iconButton:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.searchOverlay {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -46px;
+  width: 80%;
+  max-width: 420px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  padding: 6px 10px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.searchButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.navButton {
+  border: none;
+  background-color: #e5f3fb;
+  color: #336699;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
