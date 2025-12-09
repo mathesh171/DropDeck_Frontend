@@ -6,6 +6,7 @@ import GroupList from '../components/GroupList/GroupList';
 import ChatWindow from '../components/ChatWindow/ChatWindow';
 import ChatHeader from '../components/ChatHeader/ChatHeader';
 import UserProfile from '../components/UserProfile/UserProfile';
+import NotificationBell from '../components/Notifications/NotificationBell';
 import CreateGroupIcon from '../assets/CreateGroup.png';
 import JoinGroupIcon from '../assets/JoinGroup.png';
 
@@ -18,25 +19,27 @@ const ChatPage = () => {
   const socketRef = useRef(null);
   const navigate = useNavigate();
 
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const storedToken = localStorage.getItem('token');
+    if (!storedToken) {
       navigate('/login');
       return;
     }
-    fetchUserProfile(token);
-    fetchGroups(token);
+    fetchUserProfile(storedToken);
+    fetchGroups(storedToken);
   }, [navigate]);
 
   useEffect(() => {
     if (user && !socketRef.current) {
       socketRef.current = io('http://localhost:5000');
-      socketRef.current.emit('joinGroups', user.user_id || user.userid);
-      socketRef.current.on('messageUpdate', () => {
-        fetchGroups(localStorage.getItem('token'));
-        if (selectedGroup) setSelectedGroup(prev => ({ ...prev }));
-      });
+      const uid = user.user_id || user.userid;
+      socketRef.current.emit('joinGroups', uid);
       socketRef.current.on('groupListUpdate', () => {
+        fetchGroups(localStorage.getItem('token'));
+      });
+      socketRef.current.on('notificationUpdate', () => {
         fetchGroups(localStorage.getItem('token'));
       });
     }
@@ -46,35 +49,54 @@ const ChatPage = () => {
         socketRef.current = null;
       }
     };
-  }, [user, selectedGroup]);
+  }, [user]);
 
-  const fetchUserProfile = async (token) => {
+  const fetchUserProfile = async storedToken => {
     try {
       const response = await fetch('http://localhost:5000/api/auth/profile', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${storedToken}` }
       });
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
       }
-    } catch {}
+    } catch {
+    }
   };
 
-  const fetchGroups = async (token) => {
+  const fetchGroups = async storedToken => {
     try {
       const response = await fetch('http://localhost:5000/api/groups', {
-        headers: { Authorization: `Bearer ${token || localStorage.getItem('token')}` }
+        headers: {
+          Authorization: `Bearer ${storedToken || localStorage.getItem('token')}`
+        }
       });
       if (response.ok) {
         const data = await response.json();
-        setGroups(data.groups || data || []);
+        const list = data.groups || data || [];
+        setGroups(list);
       }
-    } catch {}
+    } catch {
+    }
   };
 
-  const filteredGroups = groups.filter(g =>
-    (g.group_name || g.groupname || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSelectGroup = async group => {
+    setSelectedGroup(group);
+    const t = localStorage.getItem('token');
+    if (!t) return;
+    await fetch(`http://localhost:5000/api/messages/groups/${group.group_id}/read`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${t}`
+      }
+    });
+    fetchGroups(t);
+  };
+
+  const filteredGroups = groups
+    .filter(g =>
+      (g.group_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   return (
     <div className={styles.chatPage}>
@@ -83,7 +105,11 @@ const ChatPage = () => {
           <div className={styles.topIcons}>
             <div className={styles.iconCircle} onClick={() => setShowProfile(true)}>
               {user?.avatar_url || user?.avatarurl ? (
-                <img src={user.avatar_url || user.avatarurl} alt="User" className={styles.profileImg} />
+                <img
+                  src={user.avatar_url || user.avatarurl}
+                  alt="User"
+                  className={styles.profileImg}
+                />
               ) : (
                 <span className={styles.defaultUserIcon}>U</span>
               )}
@@ -93,8 +119,14 @@ const ChatPage = () => {
               placeholder="Search groups..."
               className={styles.searchBar}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
             />
+            {user && (
+              <NotificationBell
+                userId={user.user_id || user.userid}
+                token={token}
+              />
+            )}
             <div className={styles.iconCircle} onClick={() => navigate('/create-group')}>
               <img src={CreateGroupIcon} className={styles.smallIcon} alt="Create" />
             </div>
@@ -106,7 +138,7 @@ const ChatPage = () => {
         <GroupList
           groups={filteredGroups}
           selectedGroup={selectedGroup}
-          onSelectGroup={setSelectedGroup}
+          onSelectGroup={handleSelectGroup}
         />
       </div>
       <div className={styles.mainContent}>
@@ -118,7 +150,6 @@ const ChatPage = () => {
               user={user}
               onNewMessage={() => {
                 fetchGroups(localStorage.getItem('token'));
-                setSelectedGroup(prev => ({ ...prev }));
               }}
             />
           </>
@@ -129,7 +160,7 @@ const ChatPage = () => {
       {showProfile && (
         <UserProfile
           user={user}
-          onUpdate={(u) => setUser(prev => ({ ...prev, ...u }))}
+          onUpdate={u => setUser(prev => (prev ? { ...prev, ...u } : prev))}
           onClose={() => setShowProfile(false)}
           onLogout={() => {
             localStorage.clear();

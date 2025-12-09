@@ -1,0 +1,101 @@
+.wrapper {
+  position: relative;
+}
+
+.bellButton {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+}
+
+.bellIcon {
+  font-size: 20px;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #d32f2f;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 18px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 46px;
+  width: 260px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  padding: 8px;
+  z-index: 50;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.markAll {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #6fa8c4;
+  cursor: pointer;
+}
+
+.empty {
+  font-size: 13px;
+  color: #667781;
+  padding: 8px 4px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.item {
+  padding: 6px 4px;
+  border-radius: 6px;
+}
+
+.item + .item {
+  margin-top: 4px;
+}
+
+.message {
+  font-size: 13px;
+  color: #111111;
+}
+
+.meta {
+  font-size: 11px;
+  color: #667781;
+  margin-top: 2px;
+}
