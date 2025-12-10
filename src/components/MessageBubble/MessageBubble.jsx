@@ -13,6 +13,7 @@ const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
   };
 
   const isFile = message.message_type === 'file';
+  const isPoll = message.message_type === 'poll';
 
   const renderContent = () => {
     if (isFile) {
@@ -38,6 +39,36 @@ const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
         >
           {fileName}
         </a>
+      );
+    }
+
+    if (isPoll) {
+      let pollData;
+      try {
+        pollData = JSON.parse(message.content);
+      } catch {
+        return <span>{message.content}</span>;
+      }
+
+      return (
+        <div className={styles.pollContainer}>
+          <div className={styles.pollQuestion}>{pollData.question}</div>
+          <div className={styles.pollOptions}>
+            {pollData.options.map((option, idx) => (
+              <div key={idx} className={styles.pollOption}>
+                <input
+                  type="radio"
+                  id={`poll-${message.message_id}-${idx}`}
+                  name={`poll-${message.message_id}`}
+                  className={styles.pollRadio}
+                />
+                <label htmlFor={`poll-${message.message_id}-${idx}`}>
+                  {option}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
       );
     }
 

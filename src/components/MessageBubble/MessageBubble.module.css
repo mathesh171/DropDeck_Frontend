@@ -66,6 +66,40 @@
   color: #0b57d0;
 }
 
+.pollContainer {
+  padding: 12px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  border-left: 3px solid var(--color-primary, #0084ff);
+}
+
+.pollQuestion {
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.pollOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pollOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pollRadio {
+  cursor: pointer;
+}
+
+.pollOption label {
+  cursor: pointer;
+  font-size: 13px;
+}
+
 @media (max-width: 768px) {
   .messageBubble {
     max-width: 85%;
