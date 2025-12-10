@@ -3,7 +3,7 @@ import styles from './ChatWindow.module.css';
 import MessageBubble from '../MessageBubble/MessageBubble';
 import MessageInput from '../MessageInput/MessageInput';
 import { socket } from '../../utils/socket';
-import { API_LINK } from '../../config.js';
+import { API_LINK } from '../../utils/config.js';
 
 const ChatWindow = ({
   group,

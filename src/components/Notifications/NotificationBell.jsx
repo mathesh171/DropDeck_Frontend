@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import styles from './NotificationBell.module.css';
-import { API_LINK } from '../../utils/config.js';
+import { API_LINK } from '../../utils/config';
 
 const NotificationBell = ({ userId, token }) => {
   const [unreadCount, setUnreadCount] = useState(0);

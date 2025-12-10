@@ -5,7 +5,7 @@ import Login from '../components/Login/Login';
 import SignUp from '../components/SignUp/SignUp';
 import styles from '../pageStyles/LoginPage.module.css';
 import LoginPageHandle from '../assets/Logo/LoginPage_handle.png';
-import { API_LINK } from '../config.js';
+import { API_LINK } from '../utils/config.js';
 
 const LoginPage = () => {
   const navigate = useNavigate();
