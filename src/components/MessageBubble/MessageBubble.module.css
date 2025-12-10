@@ -52,6 +52,20 @@
   margin-top: 4px;
 }
 
+.highlight {
+  background-color: #fff3b0;
+}
+
+.activeHighlight {
+  background-color: #ffe15a;
+  border-radius: 2px;
+}
+
+.fileName {
+  font-weight: 500;
+  color: #0b57d0;
+}
+
 @media (max-width: 768px) {
   .messageBubble {
     max-width: 85%;

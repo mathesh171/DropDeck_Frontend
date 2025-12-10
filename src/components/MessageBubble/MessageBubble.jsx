@@ -29,6 +29,7 @@ const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
     const parts = [];
     let currentIndex = 0;
     let matchIndex;
+
     while ((matchIndex = lower.indexOf(term, currentIndex)) !== -1) {
       if (matchIndex > currentIndex) {
         parts.push({
@@ -42,12 +43,14 @@ const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
       });
       currentIndex = matchIndex + term.length;
     }
+
     if (currentIndex < text.length) {
       parts.push({
         text: text.slice(currentIndex),
         match: false
       });
     }
+
     return parts.map((part, idx) =>
       part.match ? (
         <span

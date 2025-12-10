@@ -2,32 +2,38 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './ChatWindow.module.css';
 import MessageBubble from '../MessageBubble/MessageBubble';
 import MessageInput from '../MessageInput/MessageInput';
-import { io } from 'socket.io-client';
-import ChatHeader from '../ChatHeader/ChatHeader';
+import { socket } from '../../utils/socket';
 
-const ChatWindow = ({ group, user, onNewMessage }) => {
+const ChatWindow = ({
+  group,
+  user,
+  onNewMessage,
+  searchTerm,
+  searchNavDirection,
+  onSearchNavHandled
+}) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const messagesEndRef = useRef(null);
-  const socket = useRef(null);
   const matchRefs = useRef([]);
 
   useEffect(() => {
-    socket.current = io('http://localhost:5000');
+    if (!group) return;
 
-    socket.current.emit('joinGroupRoom', group.group_id);
+    socket.emit('joinGroupRoom', group.group_id);
 
-    socket.current.on('newMessage', () => {
+    const handleNewMessage = () => {
       fetchMessages();
       if (onNewMessage) onNewMessage();
-    });
+    };
+
+    socket.on('newMessage', handleNewMessage);
 
     return () => {
-      socket.current.disconnect();
+      socket.off('newMessage', handleNewMessage);
     };
-  }, [group]);
+  }, [group, onNewMessage]);
 
   useEffect(() => {
     if (group) fetchMessages();
@@ -88,7 +94,7 @@ const ChatWindow = ({ group, user, onNewMessage }) => {
         );
       }
 
-      socket.current.emit('sendMessage', { groupId: group.group_id });
+      socket.emit('sendMessage', { groupId: group.group_id });
 
       fetchMessages();
       if (onNewMessage) onNewMessage();
@@ -127,18 +133,32 @@ const ChatWindow = ({ group, user, onNewMessage }) => {
     }
   }, [activeIndex, matches]);
 
-  const handleSearchChange = term => {
-    setSearchTerm(term);
-  };
-
-  const handleSearchNav = direction => {
-    if (!matches.length) return;
-    if (direction === 'next') {
-      setActiveIndex(prev => (prev + 1) % matches.length);
-    } else if (direction === 'prev') {
-      setActiveIndex(prev => (prev - 1 + matches.length) % matches.length);
+  useEffect(() => {
+    if (!searchNavDirection || !matches.length) {
+      onSearchNavHandled && onSearchNavHandled(false, false);
+      return;
     }
-  };
+
+    let hasBelow = false;
+    let hasAbove = false;
+
+    if (searchNavDirection === 'next') {
+      hasBelow = activeIndex < matches.length - 1;
+      if (hasBelow) {
+        setActiveIndex(prev => Math.min(prev + 1, matches.length - 1));
+      }
+    } else if (searchNavDirection === 'prev') {
+      hasAbove = activeIndex > 0;
+      if (hasAbove) {
+        setActiveIndex(prev => Math.max(prev - 1, 0));
+      }
+    }
+
+    onSearchNavHandled && onSearchNavHandled(hasAbove, hasBelow);
+  }, [searchNavDirection, matches, activeIndex, onSearchNavHandled]);
+
+  const totalMatches = matches.length;
+  const currentMatchNumber = totalMatches ? activeIndex + 1 : 0;
 
   if (loading) {
     return (

@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { io } from 'socket.io-client';
 import styles from '../pageStyles/ChatPage.module.css';
 import GroupList from '../components/GroupList/GroupList';
 import ChatWindow from '../components/ChatWindow/ChatWindow';
@@ -9,14 +8,17 @@ import UserProfile from '../components/UserProfile/UserProfile';
 import NotificationBell from '../components/Notifications/NotificationBell';
 import CreateGroupIcon from '../assets/CreateGroup.png';
 import JoinGroupIcon from '../assets/JoinGroup.png';
+import { socket } from '../utils/socket';
 
 const ChatPage = () => {
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [groupSearch, setGroupSearch] = useState('');
+  const [chatSearchTerm, setChatSearchTerm] = useState('');
+  const [chatSearchNav, setChatSearchNav] = useState(null);
   const [user, setUser] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
-  const socketRef = useRef(null);
+  const isSocketInitialized = useRef(false);
   const navigate = useNavigate();
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -32,22 +34,21 @@ const ChatPage = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (user && !socketRef.current) {
-      socketRef.current = io('http://localhost:5000');
+    if (user && !isSocketInitialized.current) {
+      socket.connect();
       const uid = user.user_id || user.userid;
-      socketRef.current.emit('joinGroups', uid);
-      socketRef.current.on('groupListUpdate', () => {
+      socket.emit('joinGroups', uid);
+      socket.on('groupListUpdate', () => {
         fetchGroups(localStorage.getItem('token'));
       });
-      socketRef.current.on('notificationUpdate', () => {
+      socket.on('notificationUpdate', () => {
         fetchGroups(localStorage.getItem('token'));
       });
+      isSocketInitialized.current = true;
     }
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
+      socket.off('groupListUpdate');
+      socket.off('notificationUpdate');
     };
   }, [user]);
 
@@ -82,6 +83,8 @@ const ChatPage = () => {
 
   const handleSelectGroup = async group => {
     setSelectedGroup(group);
+    setChatSearchTerm('');
+    setChatSearchNav(null);
     const t = localStorage.getItem('token');
     if (!t) return;
     await fetch(`http://localhost:5000/api/messages/groups/${group.group_id}/read`, {
@@ -93,10 +96,17 @@ const ChatPage = () => {
     fetchGroups(t);
   };
 
-  const filteredGroups = groups
-    .filter(g =>
-      (g.group_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const filteredGroups = groups.filter(g =>
+    (g.group_name || '').toLowerCase().includes(groupSearch.toLowerCase())
+  );
+
+  const handleChatSearchChange = term => {
+    setChatSearchTerm(term);
+  };
+
+  const handleChatSearchNav = direction => {
+    setChatSearchNav(direction);
+  };
 
   return (
     <div className={styles.chatPage}>
@@ -118,8 +128,8 @@ const ChatPage = () => {
               type="text"
               placeholder="Search groups..."
               className={styles.searchBar}
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              value={groupSearch}
+              onChange={e => setGroupSearch(e.target.value)}
             />
             {user && (
               <NotificationBell
@@ -144,13 +154,21 @@ const ChatPage = () => {
       <div className={styles.mainContent}>
         {selectedGroup ? (
           <>
-            <ChatHeader group={selectedGroup} />
+            <ChatHeader
+              group={selectedGroup}
+              onSearchChange={handleChatSearchChange}
+              onSearchNav={handleChatSearchNav}
+            />
             <ChatWindow
               group={selectedGroup}
               user={user}
               onNewMessage={() => {
                 fetchGroups(localStorage.getItem('token'));
               }}
+              searchTerm={chatSearchTerm}
+              searchNavDirection={chatSearchNav}
+              onSearchNavHandled={() => setChatSearchNav(null)}
+              socket={socket}
             />
           </>
         ) : (
