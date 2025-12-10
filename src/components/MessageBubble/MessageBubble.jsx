@@ -18,12 +18,24 @@ const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
     if (isFile) {
       const fileName = message.file_name || message.content || 'File';
       const fileId = message.file_id;
-      const href = fileId
-        ? `http://localhost:5000/api/files/${fileId}/download`
-        : '#';
+
+      if (!fileId) {
+        return (
+          <span className={styles.fileError}>
+            {fileName} (file not available)
+          </span>
+        );
+      }
+
+      const href = `http://localhost:5000/api/files/${fileId}/download`;
 
       return (
-        <a href={href} className={styles.fileName} download={fileName}>
+        <a
+          href={href}
+          className={styles.fileName}
+          download={fileName}
+          onClick={e => e.stopPropagation()}
+        >
           {fileName}
         </a>
       );
@@ -95,4 +107,3 @@ const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
 };
 
 export default MessageBubble;
-``

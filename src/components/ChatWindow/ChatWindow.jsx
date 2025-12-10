@@ -67,10 +67,11 @@ const ChatWindow = ({
 
   const handleSendMessage = async (content, messageType = 'text', file) => {
     try {
+      const token = localStorage.getItem('token');
+
       if (messageType === 'file' && file) {
         const formData = new FormData();
         formData.append('file', file);
-        const token = localStorage.getItem('token');
 
         const uploadRes = await fetch(
           `http://localhost:5000/api/files/groups/${group.group_id}/files/upload`,
@@ -93,7 +94,7 @@ const ChatWindow = ({
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('token')}`
+              Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ content, message_type: messageType })
           }
