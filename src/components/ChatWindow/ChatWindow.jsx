@@ -44,6 +44,7 @@ const ChatWindow = ({
   }, [messages]);
 
   const fetchMessages = async () => {
+    if (!group) return;
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
@@ -70,7 +71,8 @@ const ChatWindow = ({
         const formData = new FormData();
         formData.append('file', file);
         const token = localStorage.getItem('token');
-        await fetch(
+
+        const uploadRes = await fetch(
           `http://localhost:5000/api/files/groups/${group.group_id}/files/upload`,
           {
             method: 'POST',
@@ -80,6 +82,10 @@ const ChatWindow = ({
             body: formData
           }
         );
+        if (!uploadRes.ok) return;
+
+        await fetchMessages();
+        if (onNewMessage) onNewMessage();
       } else {
         await fetch(
           `http://localhost:5000/api/messages/groups/${group.group_id}/messages`,
@@ -92,12 +98,11 @@ const ChatWindow = ({
             body: JSON.stringify({ content, message_type: messageType })
           }
         );
+
+        socket.emit('sendMessage', { groupId: group.group_id });
+        await fetchMessages();
+        if (onNewMessage) onNewMessage();
       }
-
-      socket.emit('sendMessage', { groupId: group.group_id });
-
-      fetchMessages();
-      if (onNewMessage) onNewMessage();
     } catch {
     }
   };
@@ -156,9 +161,6 @@ const ChatWindow = ({
 
     onSearchNavHandled && onSearchNavHandled(hasAbove, hasBelow);
   }, [searchNavDirection, matches, activeIndex, onSearchNavHandled]);
-
-  const totalMatches = matches.length;
-  const currentMatchNumber = totalMatches ? activeIndex + 1 : 0;
 
   if (loading) {
     return (

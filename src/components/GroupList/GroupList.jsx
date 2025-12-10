@@ -11,7 +11,7 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
       return date.toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
-        hour12: true,
+        hour12: true
       });
     } else if (days === 1) {
       return 'Yesterday';
@@ -19,7 +19,7 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
       return date.toLocaleDateString('en-US', {
         month: 'numeric',
         day: 'numeric',
-        year: '2-digit',
+        year: '2-digit'
       });
     }
   };
@@ -33,9 +33,19 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
       .slice(0, 2);
   };
 
-  const sortedGroups = [...groups].sort((a, b) => {
-    const aTime = a.last_message ? new Date(a.last_message.created_at) : new Date(a.created_at);
-    const bTime = b.last_message ? new Date(b.last_message.created_at) : new Date(b.created_at);
+  const uniqueGroupsMap = new Map();
+  groups.forEach(g => {
+    uniqueGroupsMap.set(g.group_id, g);
+  });
+  const uniqueGroups = Array.from(uniqueGroupsMap.values());
+
+  const sortedGroups = uniqueGroups.sort((a, b) => {
+    const aTime = a.last_message
+      ? new Date(a.last_message.created_at)
+      : new Date(a.created_at);
+    const bTime = b.last_message
+      ? new Date(b.last_message.created_at)
+      : new Date(b.created_at);
     return bTime - aTime;
   });
 
@@ -44,11 +54,21 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
       {sortedGroups.length === 0 ? (
         <div className={styles.emptyState}>
           <p>No groups yet</p>
-          <p className={styles.emptyHint}>Create your first group to get started</p>
+          <p className={styles.emptyHint}>
+            Create your first group to get started
+          </p>
         </div>
       ) : (
         sortedGroups.map(group => {
           const unread = group.unread_count || 0;
+          const last = group.last_message;
+          const lastText =
+            last && last.message_type === 'file'
+              ? last.file_name || last.content || 'File'
+              : last
+              ? last.content
+              : 'No messages yet';
+
           return (
             <div
               key={group.group_id}
@@ -73,14 +93,12 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
                   <h3 className={styles.groupName}>{group.group_name}</h3>
                   <span className={styles.groupDate}>
                     {formatDate(
-                      group.last_message ? group.last_message.created_at : group.created_at
+                      last ? last.created_at : group.created_at
                     )}
                   </span>
                 </div>
                 <div className={styles.bottomRow}>
-                  <p className={styles.groupMessage}>
-                    {group.last_message ? group.last_message.content : 'No messages yet'}
-                  </p>
+                  <p className={styles.groupMessage}>{lastText}</p>
                   {unread > 0 && (
                     <span className={styles.unreadBadge}>
                       {unread > 9 ? '9+' : unread}

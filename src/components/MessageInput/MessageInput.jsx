@@ -41,8 +41,7 @@ const MessageInput = ({ onSendMessage }) => {
   const handleFileChange = e => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    const label = file.name;
-    onSendMessage(label, 'file', file);
+    onSendMessage(file.name, 'file', file);
   };
 
   return (

@@ -15,8 +15,18 @@ const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
   const isFile = message.message_type === 'file';
 
   const renderContent = () => {
-    if (isFile && message.file_name) {
-      return <span className={styles.fileName}>{message.file_name}</span>;
+    if (isFile) {
+      const fileName = message.file_name || message.content || 'File';
+      const fileId = message.file_id;
+      const href = fileId
+        ? `http://localhost:5000/api/files/${fileId}/download`
+        : '#';
+
+      return (
+        <a href={href} className={styles.fileName} download={fileName}>
+          {fileName}
+        </a>
+      );
     }
 
     if (!highlightTerm || !message.content) {
@@ -85,3 +95,4 @@ const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
 };
 
 export default MessageBubble;
+``
