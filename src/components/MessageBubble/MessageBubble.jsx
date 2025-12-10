@@ -1,4 +1,5 @@
 import styles from './MessageBubble.module.css';
+import { getFileDownloadUrl } from '../../utils/api.js';
 
 const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
   const formatTime = timestamp => {
@@ -28,7 +29,7 @@ const MessageBubble = ({ message, isOwn, highlightTerm, isActiveMatch }) => {
         );
       }
 
-      const href = `http://localhost:5000/api/files/${fileId}/download`;
+      const href = getFileDownloadUrl(fileId);
 
       return (
         <a

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './ChatHeader.module.css';
+import { getImageUrl } from '../../utils/api.js';
 
 const ChatHeader = ({
   group,
@@ -69,7 +70,7 @@ const ChatHeader = ({
         <div className={styles.groupAvatar}>
           {group.group_image ? (
             <img
-              src={`http://localhost:5000/uploads/${group.group_image}`}
+              src={getImageUrl(group.group_image)}
               alt={group.group_name}
               className={styles.groupAvatarImg}
             />

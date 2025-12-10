@@ -1,4 +1,5 @@
 import styles from './GroupList.module.css';
+import { getImageUrl } from '../../utils/api.js';
 
 const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
   const formatDate = dateString => {
@@ -80,7 +81,7 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup }) => {
               <div className={styles.groupAvatar}>
                 {group.group_image ? (
                   <img
-                    src={`http://localhost:5000/uploads/${group.group_image}`}
+                    src={getImageUrl(group.group_image)}
                     alt={group.group_name}
                     className={styles.groupAvatarImg}
                   />

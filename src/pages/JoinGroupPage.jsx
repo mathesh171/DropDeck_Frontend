@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../pageStyles/JoinGroupPage.module.css';
+import { API_LINK } from '../utils/config.js';
 
 const JoinGroupPage = () => {
   const [groups, setGroups] = useState([]);
@@ -23,7 +24,7 @@ const JoinGroupPage = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:5000/api/groups/discover', {
+      const response = await fetch(`${API_LINK}/api/groups/discover`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -62,8 +63,8 @@ const JoinGroupPage = () => {
       const accessType = group.access_type;
       const isPublic = accessType === 'public';
       const endpoint = isPublic
-        ? `http://localhost:5000/api/groups/${groupId}/join`
-        : `http://localhost:5000/api/groups/${groupId}/request`;
+        ? `${API_LINK}/api/groups/${groupId}/join`
+        : `${API_LINK}/api/groups/${groupId}/request`;
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {

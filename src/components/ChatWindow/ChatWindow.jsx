@@ -3,6 +3,7 @@ import styles from './ChatWindow.module.css';
 import MessageBubble from '../MessageBubble/MessageBubble';
 import MessageInput from '../MessageInput/MessageInput';
 import { socket } from '../../utils/socket';
+import { API_LINK } from '../../config.js';
 
 const ChatWindow = ({
   group,
@@ -49,7 +50,7 @@ const ChatWindow = ({
     const token = localStorage.getItem('token');
     try {
       const response = await fetch(
-        `http://localhost:5000/api/messages/groups/${group.group_id}/messages?limit=200&offset=0`,
+        `${API_LINK}/api/messages/groups/${group.group_id}/messages?limit=200&offset=0`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -74,7 +75,7 @@ const ChatWindow = ({
         formData.append('file', file);
 
         const uploadRes = await fetch(
-          `http://localhost:5000/api/files/groups/${group.group_id}/files/upload`,
+          `${API_LINK}/api/files/groups/${group.group_id}/files/upload`,
           {
             method: 'POST',
             headers: {
@@ -89,7 +90,7 @@ const ChatWindow = ({
         if (onNewMessage) onNewMessage();
       } else {
         await fetch(
-          `http://localhost:5000/api/messages/groups/${group.group_id}/messages`,
+          `${API_LINK}/api/messages/groups/${group.group_id}/messages`,
           {
             method: 'POST',
             headers: {

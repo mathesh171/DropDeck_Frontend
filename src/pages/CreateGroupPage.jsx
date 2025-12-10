@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../pageStyles/CreateGroupPage.module.css';
 import BackIcon from '../assets/Back.png';
+import { API_LINK } from '../utils/config.js';
 
 const CreateGroupPage = () => {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ const CreateGroupPage = () => {
       form.append('access_type', formData.access_type);
       if (avatarFile) form.append('group_image', avatarFile);
 
-      const response = await fetch('http://localhost:5000/api/groups/create', {
+      const response = await fetch(`${API_LINK}/api/groups/create`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: form

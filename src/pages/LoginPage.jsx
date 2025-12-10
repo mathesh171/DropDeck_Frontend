@@ -5,6 +5,7 @@ import Login from '../components/Login/Login';
 import SignUp from '../components/SignUp/SignUp';
 import styles from '../pageStyles/LoginPage.module.css';
 import LoginPageHandle from '../assets/Logo/LoginPage_handle.png';
+import { API_LINK } from '../config.js';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -23,22 +24,27 @@ const LoginPage = () => {
     }
   };
 
-  const handleLoginSubmit = async ({ email, password }) => {
+  const handleLoginSubmit = async (email, password) => {
     setError('');
-
-    if (!email.trim()) { setError('Please enter your email'); return; }
-    if (!validateEmail(email)) { setError('Please enter a valid email address'); return; }
-    if (!password.trim()) { setError('Please enter your password'); return; }
-
+    if (!email.trim()) {
+      setError('Please enter your email');
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    if (!password.trim()) {
+      setError('Please enter your password');
+      return;
+    }
     setIsLoading(true);
-
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_LINK}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password: password.trim() }),
       });
-
       if (!response.ok) {
         if (response.status === 429) {
           setError('Too many attempts. Please wait a moment and try again.');
@@ -48,17 +54,14 @@ const LoginPage = () => {
         setError(data.error || data.message || 'Login failed.');
         return;
       }
-
       const data = await response.json();
-
       const userData = {
         username: data.user?.name || data.name || 'User',
         email: data.user?.email || data.email || email,
-        id: data.user?.user_id || data.id || Date.now(),
+        id: data.user?.userid || data.id || Date.now(),
         token: data.token,
         loginTime: new Date().toISOString(),
       };
-
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('token', data.token);
       navigate('/chat');
@@ -70,53 +73,49 @@ const LoginPage = () => {
     }
   };
 
-  const handleSignUpSubmit = async ({ username, email, password, confirmPassword }) => {
+  const handleSignUpSubmit = async (username, email, password, confirmPassword) => {
     setError('');
-
-    if (!username.trim()) { setError('Please enter a username'); return; }
-    if (!email.trim()) { setError('Please enter your email'); return; }
-    if (!validateEmail(email)) { setError('Please enter a valid email address'); return; }
-    if (!password.trim()) { setError('Please create a password'); return; }
-    if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
-    if (!confirmPassword.trim()) { setError('Please confirm your password'); return; }
-    if (password !== confirmPassword) { setError('Passwords do not match'); return; }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: username.trim(),
+    if (!username.trim()) setError('Please enter a username');
+    else if (!email.trim()) setError('Please enter your email');
+    else if (!validateEmail(email)) setError('Please enter a valid email address');
+    else if (!password.trim()) setError('Please create a password');
+    else if (password.length < 6) setError('Password must be at least 6 characters');
+    else if (!confirmPassword.trim()) setError('Please confirm your password');
+    else if (password !== confirmPassword) setError('Passwords do not match');
+    else {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${API_LINK}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: username.trim(),
+            email: email.trim(),
+            password: password.trim(),
+          }),
+        });
+        if (!response.ok) {
+          const data = await safeParseJson(response);
+          setError(data.error || data.message || 'Sign up failed');
+          return;
+        }
+        const data = await response.json();
+        const userData = {
+          username: username.trim(),
           email: email.trim(),
-          password: password.trim(),
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await safeParseJson(response);
-        setError(data.error || data.message || 'Sign up failed');
-        return;
+          id: data.user?.userid || data.id || Date.now(),
+          token: data.token,
+          loginTime: new Date().toISOString(),
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', data.token);
+        navigate('/chat');
+      } catch (err) {
+        console.error(err);
+        setError('Sign up failed. Please try again.');
+      } finally {
+        setIsLoading(false);
       }
-
-      const data = await response.json();
-
-      const userData = {
-        username: username.trim(),
-        email: email.trim(),
-        id: data.user?.user_id || data.id || Date.now(),
-        loginTime: new Date().toISOString(),
-      };
-
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', data.token);
-      navigate('/chat');
-    } catch (err) {
-      console.error(err);
-      setError('Sign up failed. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 

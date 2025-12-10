@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import styles from './NotificationBell.module.css';
+import { API_LINK } from '../../utils/config.js';
 
 const NotificationBell = ({ userId, token }) => {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -12,7 +13,7 @@ const NotificationBell = ({ userId, token }) => {
   const fetchNotifications = async () => {
     if (!token) return;
     const res = await fetch(
-      'http://localhost:5000/api/notifications?unread_only=true',
+      `${API_LINK}/api/notifications?unread_only=true`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     if (!res.ok) return;
@@ -25,7 +26,7 @@ const NotificationBell = ({ userId, token }) => {
     if (!token || unreadCount === 0) return;
     const ids = notifications.map(n => n.notification_id);
     if (!ids.length) return;
-    await fetch('http://localhost:5000/api/notifications/mark-read', {
+    await fetch(`${API_LINK}/api/notifications/mark-read`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +42,7 @@ const NotificationBell = ({ userId, token }) => {
     if (!token) return;
     setLoadingAction(true);
     try {
-      await fetch('http://localhost:5000/api/notifications/join-request/action', {
+      await fetch(`${API_LINK}/api/notifications/join-request/action`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +62,7 @@ const NotificationBell = ({ userId, token }) => {
 
   useEffect(() => {
     if (!userId) return;
-    const s = io('http://localhost:5000');
+    const s = io(API_LINK);
     s.emit('joinGroups', userId);
     s.on('notificationUpdate', () => {
       fetchNotifications();

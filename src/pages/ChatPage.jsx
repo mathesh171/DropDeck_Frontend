@@ -9,6 +9,7 @@ import NotificationBell from '../components/Notifications/NotificationBell';
 import CreateGroupIcon from '../assets/CreateGroup.png';
 import JoinGroupIcon from '../assets/JoinGroup.png';
 import { socket } from '../utils/socket';
+import { API_LINK } from '../utils/config.js';
 
 const ChatPage = () => {
   const [groups, setGroups] = useState([]);
@@ -54,20 +55,19 @@ const ChatPage = () => {
 
   const fetchUserProfile = async storedToken => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/profile', {
+      const response = await fetch(`${API_LINK}/api/auth/profile`, {
         headers: { Authorization: `Bearer ${storedToken}` }
       });
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const fetchGroups = async storedToken => {
     try {
-      const response = await fetch('http://localhost:5000/api/groups', {
+      const response = await fetch(`${API_LINK}/api/groups`, {
         headers: {
           Authorization: `Bearer ${storedToken || localStorage.getItem('token')}`
         }
@@ -77,8 +77,7 @@ const ChatPage = () => {
         const list = data.groups || data || [];
         setGroups(list);
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const handleSelectGroup = async group => {
@@ -87,7 +86,7 @@ const ChatPage = () => {
     setChatSearchNav(null);
     const t = localStorage.getItem('token');
     if (!t) return;
-    await fetch(`http://localhost:5000/api/messages/groups/${group.group_id}/read`, {
+    await fetch(`${API_LINK}/api/messages/groups/${group.group_id}/read`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${t}`
