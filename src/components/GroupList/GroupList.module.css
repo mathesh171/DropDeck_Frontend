@@ -1,6 +1,7 @@
 .groupList {
   flex: 1;
   overflow-y: auto;
+  background: var(--color-surface);
 }
 
 .groupList::-webkit-scrollbar {
@@ -8,97 +9,96 @@
 }
 
 .groupList::-webkit-scrollbar-thumb {
-  background-color: #d1d7db;
+  background-color: var(--color-border);
   border-radius: 3px;
+  transition: background var(--transition-fast);
+}
+
+.groupList::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-textTertiary);
+}
+
+.section {
+  margin-bottom: var(--spacing-md);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-textSecondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sectionCount {
+  font-size: 12px;
+  color: var(--color-textTertiary);
+  background: var(--color-surfaceHover);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
 }
 
 .groupItem {
+  position: relative;
   display: flex;
   align-items: center;
   padding: 12px 16px;
   cursor: pointer;
-  border-bottom: 1px solid #f0f2f5;
-  transition: background-color 0.15s;
+  border-bottom: 1px solid var(--color-borderLight);
+  transition: all var(--transition-fast);
+  animation: slideInLeft 0.3s ease-out;
 }
 
 .groupItem:hover {
-  background-color: #f5f6f6;
+  background-color: var(--color-surfaceHover);
+}
+
+.groupItem:hover .pinButton {
+  opacity: 1;
 }
 
 .groupItem.active {
-  background-color: #ebebeb;
+  background-color: var(--color-primaryLight);
+  background: linear-gradient(90deg, var(--color-primaryLight) 0%, transparent 100%);
+  border-left: 3px solid var(--color-primary);
+}
+
+.avatarWrapper {
+  position: relative;
+  margin-right: 16px;
+  flex-shrink: 0;
 }
 
 .groupAvatar {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6fa8c4, #89c4e0);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primaryLight));
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 600;
   font-size: 16px;
-  margin-right: 16px;
-  flex-shrink: 0;
-}
-
-.groupInfo {
-  flex: 1;
-  min-width: 0;
-}
-
-.groupHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 4px;
-}
-
-.groupName {
-  font-size: 16px;
-  font-weight: 500;
-  color: #111;
-  margin: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
 }
 
-.groupDate {
-  font-size: 12px;
-  color: #667781;
-  flex-shrink: 0;
-  margin-left: 8px;
-}
-
-.groupDescription {
-  font-size: 14px;
-  color: #667781;
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-  color: #667781;
-}
-
-.emptyState p {
-  margin: 8px 0;
-}
-
-.emptyHint {
-  font-size: 14px;
-  color: #999;
+.groupItem:hover .groupAvatar {
+  transform: scale(1.05);
 }
 
 .groupAvatarImg {
@@ -106,6 +106,56 @@
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}
+
+.onlineIndicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: var(--color-success);
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.groupInfo {
+  flex: 1;
+  min-width: 0;
+  margin-right: 8px;
+}
+
+.groupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+  gap: 8px;
+}
+
+.groupName {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pinIcon {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.groupDate {
+  font-size: 12px;
+  color: var(--color-textSecondary);
+  flex-shrink: 0;
 }
 
 .bottomRow {
@@ -117,7 +167,7 @@
 
 .groupMessage {
   font-size: 14px;
-  color: #667781;
+  color: var(--color-textSecondary);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -125,14 +175,118 @@
   flex: 1;
 }
 
+.messageWithIcon {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fileIcon,
+.pollIcon,
+.imageIcon {
+  font-size: 14px;
+}
+
 .unreadBadge {
   min-width: 20px;
   padding: 2px 6px;
-  border-radius: 999px;
-  background-color: #25d366;
+  border-radius: var(--radius-full);
+  background-color: var(--color-success);
   color: #ffffff;
   font-size: 11px;
   font-weight: 600;
   text-align: center;
   flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+
+.pinButton {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  padding: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  z-index: 5;
+}
+
+.pinButton:hover {
+  background: var(--color-primary);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.groupItem.active .pinButton {
+  opacity: 1;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--color-textSecondary);
+  gap: var(--spacing-sm);
+}
+
+.emptyIcon {
+  font-size: 64px;
+  opacity: 0.5;
+  margin-bottom: var(--spacing-md);
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.emptyState p:first-of-type {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.emptyHint {
+  font-size: 14px;
+  color: var(--color-textTertiary);
+}
+
+.skeletonItem {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 16px;
+}
+
+.skeletonContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }

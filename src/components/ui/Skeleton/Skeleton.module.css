@@ -1,0 +1,44 @@
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surfaceHover) 0%,
+    var(--color-border) 50%,
+    var(--color-surfaceHover) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+.text {
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+.title {
+  height: 24px;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.rect {
+  border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

@@ -1,6 +1,14 @@
 .messageWrapper {
   display: flex;
   margin-bottom: 8px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.messageWrapper.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .messageWrapper.own {
@@ -12,65 +20,177 @@
 }
 
 .messageBubble {
+  position: relative;
   max-width: 65%;
   padding: 8px 12px;
   border-radius: 8px;
-  position: relative;
   word-wrap: break-word;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.messageBubble:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .ownBubble {
-  background-color: #d9fdd3;
+  background-color: var(--color-messageBubbleOwn);
   border-bottom-right-radius: 2px;
 }
 
 .otherBubble {
-  background-color: #ffffff;
+  background-color: var(--color-messageBubbleOther);
   border-bottom-left-radius: 2px;
 }
 
 .senderName {
   font-size: 13px;
   font-weight: 600;
-  color: #6fa8c4;
+  color: var(--color-primary);
   margin-bottom: 4px;
+}
+
+.replyPreview {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.replyPreview:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.replyLine {
+  width: 3px;
+  background: var(--color-primary);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.replyContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.replyUser {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.replyText {
+  font-size: 12px;
+  color: var(--color-textSecondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .messageContent {
   font-size: 14px;
-  color: #111;
+  color: var(--color-text);
   line-height: 1.4;
   margin-bottom: 4px;
   white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.messageFooter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 4px;
 }
 
 .messageTime {
   font-size: 11px;
-  color: #667781;
-  text-align: right;
-  margin-top: 4px;
+  color: var(--color-textSecondary);
+}
+
+.editedLabel {
+  font-size: 10px;
+  color: var(--color-textTertiary);
+  font-style: italic;
+}
+
+.statusSending,
+.statusSent,
+.statusDelivered,
+.statusRead {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.statusSending {
+  color: var(--color-textTertiary);
+}
+
+.statusSent {
+  color: var(--color-textSecondary);
+}
+
+.statusDelivered {
+  color: var(--color-textSecondary);
+}
+
+.statusRead {
+  color: var(--color-primary);
 }
 
 .highlight {
   background-color: #fff3b0;
+  border-radius: 2px;
+  padding: 1px 2px;
 }
 
 .activeHighlight {
   background-color: #ffe15a;
-  border-radius: 2px;
+}
+
+.fileWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+}
+
+.fileIcon {
+  font-size: 18px;
 }
 
 .fileName {
   font-weight: 500;
-  color: #0b57d0;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.fileName:hover {
+  color: var(--color-primaryHover);
+  text-decoration: underline;
+}
+
+.fileError {
+  color: var(--color-error);
+  font-size: 13px;
 }
 
 .pollContainer {
   padding: 12px;
   background-color: rgba(0, 0, 0, 0.02);
   border-radius: 8px;
-  border-left: 3px solid var(--color-primary, #0084ff);
+  border-left: 3px solid var(--color-primary);
 }
 
 .pollQuestion {
@@ -89,6 +209,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+  transition: background var(--transition-fast);
+}
+
+.pollOption:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .pollRadio {
@@ -98,6 +226,74 @@
 .pollOption label {
   cursor: pointer;
   font-size: 13px;
+  flex: 1;
+}
+
+.reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.reaction:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: scale(1.1);
+}
+
+.contextMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 4px;
+  z-index: 10;
+  min-width: 120px;
+  animation: scaleIn 0.15s ease-out;
+}
+
+.contextMenu button {
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--color-text);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.contextMenu button:hover {
+  background: var(--color-surfaceHover);
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @media (max-width: 768px) {

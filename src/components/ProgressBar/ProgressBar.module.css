@@ -1,0 +1,121 @@
+.linearContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--color-textSecondary);
+  font-weight: 500;
+}
+
+.linearTrack {
+  width: 100%;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.linearContainer.small .linearTrack {
+  height: 4px;
+}
+
+.linearContainer.medium .linearTrack {
+  height: 6px;
+}
+
+.linearContainer.large .linearTrack {
+  height: 8px;
+}
+
+.linearProgress {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease, background 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  min-width: 30px;
+}
+
+.linearProgress.primary {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primaryLight));
+}
+
+.linearProgress.success {
+  background: linear-gradient(90deg, var(--color-success), #4ade80);
+}
+
+.linearProgress.error {
+  background: linear-gradient(90deg, var(--color-error), #f87171);
+}
+
+.linearProgress.warning {
+  background: linear-gradient(90deg, var(--color-warning), #fbbf24);
+}
+
+.linearLabel {
+  font-size: 10px;
+  color: white;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.circularContainer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circularSvg {
+  transform: rotate(-90deg);
+}
+
+.circularTrack {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 4;
+}
+
+.circularProgress {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.circularProgress.primary {
+  stroke: var(--color-primary);
+}
+
+.circularProgress.success {
+  stroke: var(--color-success);
+}
+
+.circularProgress.error {
+  stroke: var(--color-error);
+}
+
+.circularProgress.warning {
+  stroke: var(--color-warning);
+}
+
+.circularLabel {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.circularContainer.small .circularLabel {
+  font-size: 10px;
+}
+
+.circularContainer.large .circularLabel {
+  font-size: 14px;
+}

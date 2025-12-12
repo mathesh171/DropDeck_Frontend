@@ -1,7 +1,60 @@
 .messageInputContainer {
+  position: relative;
   padding: 16px;
-  background-color: var(--color-surface, #f5f5f5);
-  border-top: 1px solid var(--color-border, #e0e0e0);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+
+.replyPreview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: var(--color-surfaceHover);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  animation: slideInUp 0.2s ease-out;
+}
+
+.replyContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.replyLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.replyText {
+  font-size: 13px;
+  color: var(--color-textSecondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cancelReply {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 20px;
+  color: var(--color-textSecondary);
+  transition: all var(--transition-fast);
+}
+
+.cancelReply:hover {
+  background: var(--color-border);
+  color: var(--color-text);
 }
 
 .inputWrapper {
@@ -12,28 +65,35 @@
 
 .input {
   flex: 1;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border, #ddd);
-  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all var(--transition-fast);
+  background: var(--color-background);
+  color: var(--color-text);
 }
 
 .input:focus {
-  border-color: var(--color-primary, #0084ff);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(111, 168, 196, 0.1);
 }
 
 .fileLabel {
   cursor: pointer;
-  font-size: 18px;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
+  font-size: 20px;
+  padding: 10px;
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fileLabel:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surfaceHover);
+  transform: scale(1.1);
 }
 
 .fileInput {
@@ -43,35 +103,79 @@
 .pollButton {
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
+  padding: 10px;
+  border-radius: 50%;
+  transition: all var(--transition-fast);
 }
 
 .pollButton:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surfaceHover);
+  transform: scale(1.1);
 }
 
 .sendButton {
   padding: 10px 16px;
-  background-color: var(--color-primary, #0084ff);
+  background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 16px;
-  transition: opacity 0.2s;
+  font-size: 18px;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
 }
 
 .sendButton:hover:not(:disabled) {
-  opacity: 0.8;
+  background-color: var(--color-primaryHover);
+  transform: scale(1.05);
 }
 
 .sendButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+}
+
+.dragOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-overlay);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.dragContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--color-primary);
+}
+
+.dragIcon {
+  font-size: 48px;
+}
+
+.dragContent p {
+  font-size: 16px;
+  color: var(--color-text);
+  margin: 0;
 }
 
 .pollModal {
@@ -80,36 +184,72 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-overlay);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .pollModalContent {
-  background-color: white;
-  border-radius: 12px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-xl);
   padding: 24px;
   width: 90%;
-  max-width: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  box-shadow: var(--shadow-xl);
+  animation: scaleIn 0.2s ease-out;
 }
 
-.pollModalContent h3 {
-  margin: 0 0 16px 0;
-  font-size: 18px;
-  color: #333;
+.pollModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+}
+
+.pollModalHeader h3 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--color-text);
+}
+
+.closeModal {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 24px;
+  color: var(--color-textSecondary);
+  transition: all var(--transition-fast);
+}
+
+.closeModal:hover {
+  background: var(--color-surfaceHover);
+  color: var(--color-text);
 }
 
 .pollInput {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: 14px;
   margin-bottom: 16px;
   box-sizing: border-box;
+  background: var(--color-background);
+  color: var(--color-text);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.pollInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(111, 168, 196, 0.1);
 }
 
 .pollOptionsContainer {
@@ -121,11 +261,20 @@
 
 .pollOption {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: 14px;
   box-sizing: border-box;
+  background: var(--color-background);
+  color: var(--color-text);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.pollOption:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(111, 168, 196, 0.1);
 }
 
 .pollModalButtons {
@@ -135,30 +284,65 @@
 }
 
 .pollCancelButton {
-  padding: 10px 16px;
-  background-color: #f0f0f0;
+  padding: 10px 20px;
+  background-color: var(--color-surfaceHover);
+  color: var(--color-text);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  transition: all var(--transition-fast);
 }
 
 .pollCancelButton:hover {
-  background-color: #e0e0e0;
+  background-color: var(--color-border);
 }
 
 .pollCreateButton {
-  padding: 10px 16px;
-  background-color: var(--color-primary, #0084ff);
+  padding: 10px 20px;
+  background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 14px;
-  transition: opacity 0.2s;
+  font-weight: 600;
+  transition: all var(--transition-fast);
 }
 
 .pollCreateButton:hover {
-  opacity: 0.8;
+  background-color: var(--color-primaryHover);
+  transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

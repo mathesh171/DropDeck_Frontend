@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './ChatWindow.module.css';
 import MessageBubble from '../MessageBubble/MessageBubble';
 import MessageInput from '../MessageInput/MessageInput';
+import TypingIndicator from '../TypingIndicator/TypingIndicator';
 import { socket } from '../../utils/socket';
-import { API_LINK } from '../../utils/config.js';
+import { API_LINK } from '../../config.js';
 
 const ChatWindow = ({
   group,
@@ -16,8 +17,11 @@ const ChatWindow = ({
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [typingUsers, setTypingUsers] = useState([]);
+  const [replyTo, setReplyTo] = useState(null);
   const messagesEndRef = useRef(null);
   const matchRefs = useRef([]);
+  const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (!group) return;
@@ -29,12 +33,35 @@ const ChatWindow = ({
       if (onNewMessage) onNewMessage();
     };
 
+    const handleUserTyping = (data) => {
+      if (data.userId === user?.user_id) return;
+      
+      setTypingUsers(prev => {
+        if (!prev.find(u => u.id === data.userId)) {
+          return [...prev, { id: data.userId, name: data.userName }];
+        }
+        return prev;
+      });
+
+      setTimeout(() => {
+        setTypingUsers(prev => prev.filter(u => u.id !== data.userId));
+      }, 3000);
+    };
+
+    const handleUserStoppedTyping = (data) => {
+      setTypingUsers(prev => prev.filter(u => u.id !== data.userId));
+    };
+
     socket.on('newMessage', handleNewMessage);
+    socket.on('userTyping', handleUserTyping);
+    socket.on('userStoppedTyping', handleUserStoppedTyping);
 
     return () => {
       socket.off('newMessage', handleNewMessage);
+      socket.off('userTyping', handleUserTyping);
+      socket.off('userStoppedTyping', handleUserStoppedTyping);
     };
-  }, [group, onNewMessage]);
+  }, [group, onNewMessage, user]);
 
   useEffect(() => {
     if (group) fetchMessages();
@@ -42,7 +69,7 @@ const ChatWindow = ({
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, typingUsers]);
 
   const fetchMessages = async () => {
     if (!group) return;
@@ -89,6 +116,15 @@ const ChatWindow = ({
         await fetchMessages();
         if (onNewMessage) onNewMessage();
       } else {
+        const payload = { 
+          content, 
+          message_type: messageType 
+        };
+        
+        if (replyTo) {
+          payload.reply_to = replyTo.message_id;
+        }
+
         await fetch(
           `${API_LINK}/api/messages/groups/${group.group_id}/messages`,
           {
@@ -97,16 +133,43 @@ const ChatWindow = ({
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ content, message_type: messageType })
+            body: JSON.stringify(payload)
           }
         );
 
         socket.emit('sendMessage', { groupId: group.group_id });
+        socket.emit('stopTyping', { 
+          groupId: group.group_id, 
+          userId: user?.user_id,
+          userName: user?.name 
+        });
+        
+        setReplyTo(null);
         await fetchMessages();
         if (onNewMessage) onNewMessage();
       }
     } catch {
     }
+  };
+
+  const handleTyping = () => {
+    socket.emit('typing', { 
+      groupId: group.group_id, 
+      userId: user?.user_id,
+      userName: user?.name || user?.username
+    });
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit('stopTyping', { 
+        groupId: group.group_id, 
+        userId: user?.user_id,
+        userName: user?.name || user?.username
+      });
+    }, 2000);
   };
 
   const orderedMessages = useMemo(
@@ -167,10 +230,13 @@ const ChatWindow = ({
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
         <p>Loading messages...</p>
       </div>
     );
   }
+
+  const typingUserNames = typingUsers.map(u => u.name);
 
   return (
     <>
@@ -178,6 +244,7 @@ const ChatWindow = ({
         <div className={styles.messagesContent}>
           {orderedMessages.length === 0 ? (
             <div className={styles.emptyMessages}>
+              <span className={styles.emptyIcon}>💬</span>
               <p>No messages yet</p>
               <p className={styles.emptyHint}>Start the conversation!</p>
             </div>
@@ -201,15 +268,24 @@ const ChatWindow = ({
                     isOwn={message.user_id === user?.user_id}
                     highlightTerm={searchTerm}
                     isActiveMatch={isActive}
+                    onReply={setReplyTo}
                   />
                 </div>
               );
             })
           )}
+          {typingUserNames.length > 0 && (
+            <TypingIndicator users={typingUserNames} />
+          )}
           <div ref={messagesEndRef} />
         </div>
       </div>
-      <MessageInput onSendMessage={handleSendMessage} />
+      <MessageInput 
+        onSendMessage={handleSendMessage} 
+        onTyping={handleTyping}
+        replyTo={replyTo}
+        onCancelReply={() => setReplyTo(null)}
+      />
     </>
   );
 };

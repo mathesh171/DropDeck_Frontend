@@ -6,10 +6,17 @@ import ChatWindow from '../components/ChatWindow/ChatWindow';
 import ChatHeader from '../components/ChatHeader/ChatHeader';
 import UserProfile from '../components/UserProfile/UserProfile';
 import NotificationBell from '../components/Notifications/NotificationBell';
+import ThemeToggle from '../components/ThemeToggle/ThemeToggle';
+import GlobalSearch from '../components/GlobalSearch/GlobalSearch';
+import CommandPalette from '../components/CommandPalette/CommandPalette';
+import FAB from '../components/FAB/FAB';
+import ToastContainer from '../components/ui/Toast/ToastContainer';
 import CreateGroupIcon from '../assets/CreateGroup.png';
 import JoinGroupIcon from '../assets/JoinGroup.png';
 import { socket } from '../utils/socket';
-import { API_LINK } from '../utils/config.js';
+import { API_LINK } from '../config.js';
+import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../hooks/useToast';
 
 const ChatPage = () => {
   const [groups, setGroups] = useState([]);
@@ -19,8 +26,13 @@ const ChatPage = () => {
   const [chatSearchNav, setChatSearchNav] = useState(null);
   const [user, setUser] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [showGlobalSearch, setShowGlobalSearch] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [groupsLoading, setGroupsLoading] = useState(true);
   const isSocketInitialized = useRef(false);
   const navigate = useNavigate();
+  const { toggleTheme } = useTheme();
+  const { toasts, removeToast } = useToast();
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
@@ -53,6 +65,26 @@ const ChatPage = () => {
     };
   }, [user]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+      if (cmdOrCtrl && e.key === 'k') {
+        e.preventDefault();
+        setShowCommandPalette(true);
+      }
+
+      if (cmdOrCtrl && e.key === 'f') {
+        e.preventDefault();
+        setShowGlobalSearch(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const fetchUserProfile = async storedToken => {
     try {
       const response = await fetch(`${API_LINK}/api/auth/profile`, {
@@ -66,6 +98,7 @@ const ChatPage = () => {
   };
 
   const fetchGroups = async storedToken => {
+    setGroupsLoading(true);
     try {
       const response = await fetch(`${API_LINK}/api/groups`, {
         headers: {
@@ -78,6 +111,7 @@ const ChatPage = () => {
         setGroups(list);
       }
     } catch {}
+    setGroupsLoading(false);
   };
 
   const handleSelectGroup = async group => {
@@ -108,72 +142,94 @@ const ChatPage = () => {
   };
 
   return (
-    <div className={styles.chatPage}>
-      <div className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <div className={styles.topIcons}>
-            <div className={styles.iconCircle} onClick={() => setShowProfile(true)}>
-              {user?.avatar_url || user?.avatarurl ? (
-                <img
-                  src={user.avatar_url || user.avatarurl}
-                  alt="User"
-                  className={styles.profileImg}
-                />
-              ) : (
-                <span className={styles.defaultUserIcon}>U</span>
-              )}
-            </div>
-            <input
-              type="text"
-              placeholder="Search groups..."
-              className={styles.searchBar}
-              value={groupSearch}
-              onChange={e => setGroupSearch(e.target.value)}
-            />
-            {user && (
-              <NotificationBell
-                userId={user.user_id || user.userid}
-                token={token}
+    <>
+      <div className={styles.chatPage}>
+        <div className={styles.sidebar}>
+          <div className={styles.sidebarHeader}>
+            <div className={styles.topIcons}>
+              <div className={styles.iconCircle} onClick={() => setShowProfile(true)}>
+                {user?.avatar_url || user?.avatarurl ? (
+                  <img
+                    src={user.avatar_url || user.avatarurl}
+                    alt="User"
+                    className={styles.profileImg}
+                  />
+                ) : (
+                  <span className={styles.defaultUserIcon}>U</span>
+                )}
+              </div>
+              <input
+                type="text"
+                placeholder="Search groups..."
+                className={styles.searchBar}
+                value={groupSearch}
+                onChange={e => setGroupSearch(e.target.value)}
               />
-            )}
-            <div className={styles.iconCircle} onClick={() => navigate('/create-group')}>
-              <img src={CreateGroupIcon} className={styles.smallIcon} alt="Create" />
-            </div>
-            <div className={styles.iconCircle} onClick={() => navigate('/join-group')}>
-              <img src={JoinGroupIcon} className={styles.smallIcon} alt="Join" />
+              <button
+                className={styles.iconCircle}
+                onClick={() => setShowGlobalSearch(true)}
+                title="Global Search (Ctrl+F)"
+              >
+                🔍
+              </button>
+              {user && (
+                <NotificationBell
+                  userId={user.user_id || user.userid}
+                  token={token}
+                />
+              )}
+              <ThemeToggle />
+              <div className={styles.iconCircle} onClick={() => navigate('/create-group')}>
+                <img src={CreateGroupIcon} className={styles.smallIcon} alt="Create" />
+              </div>
+              <div className={styles.iconCircle} onClick={() => navigate('/join-group')}>
+                <img src={JoinGroupIcon} className={styles.smallIcon} alt="Join" />
+              </div>
             </div>
           </div>
+          <GroupList
+            groups={filteredGroups}
+            selectedGroup={selectedGroup}
+            onSelectGroup={handleSelectGroup}
+            loading={groupsLoading}
+          />
         </div>
-        <GroupList
-          groups={filteredGroups}
-          selectedGroup={selectedGroup}
-          onSelectGroup={handleSelectGroup}
-        />
+        <div className={styles.mainContent}>
+          {selectedGroup ? (
+            <>
+              <ChatHeader
+                group={selectedGroup}
+                onSearchChange={handleChatSearchChange}
+                onSearchNav={handleChatSearchNav}
+              />
+              <ChatWindow
+                group={selectedGroup}
+                user={user}
+                onNewMessage={() => {
+                  fetchGroups(localStorage.getItem('token'));
+                }}
+                searchTerm={chatSearchTerm}
+                searchNavDirection={chatSearchNav}
+                onSearchNavHandled={() => setChatSearchNav(null)}
+                socket={socket}
+              />
+            </>
+          ) : (
+            <div className={styles.emptyState}>
+              <span className={styles.emptyStateIcon}>💬</span>
+              <h2>Select a group to start chatting</h2>
+              <p>Choose a conversation from the sidebar or create a new group</p>
+              <button 
+                className={styles.commandButton}
+                onClick={() => setShowCommandPalette(true)}
+              >
+                <kbd>⌘</kbd> + <kbd>K</kbd> for quick actions
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-      <div className={styles.mainContent}>
-        {selectedGroup ? (
-          <>
-            <ChatHeader
-              group={selectedGroup}
-              onSearchChange={handleChatSearchChange}
-              onSearchNav={handleChatSearchNav}
-            />
-            <ChatWindow
-              group={selectedGroup}
-              user={user}
-              onNewMessage={() => {
-                fetchGroups(localStorage.getItem('token'));
-              }}
-              searchTerm={chatSearchTerm}
-              searchNavDirection={chatSearchNav}
-              onSearchNavHandled={() => setChatSearchNav(null)}
-              socket={socket}
-            />
-          </>
-        ) : (
-          <div className={styles.emptyState}>Select a group to start chatting</div>
-        )}
-      </div>
+
       {showProfile && (
         <UserProfile
           user={user}
@@ -187,7 +243,28 @@ const ChatPage = () => {
           }}
         />
       )}
-    </div>
+
+      <GlobalSearch
+        isOpen={showGlobalSearch}
+        onClose={() => setShowGlobalSearch(false)}
+        onSelectGroup={handleSelectGroup}
+      />
+
+      <CommandPalette
+        isOpen={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        groups={groups}
+        onSelectGroup={handleSelectGroup}
+        toggleTheme={toggleTheme}
+      />
+
+      <FAB
+        onCommandPalette={() => setShowCommandPalette(true)}
+        onGlobalSearch={() => setShowGlobalSearch(true)}
+      />
+
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+    </>
   );
 };
 
