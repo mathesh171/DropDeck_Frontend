@@ -1,0 +1,146 @@
+.colorPicker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.pickerContainer {
+  position: relative;
+}
+
+.colorButton {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.colorButton:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.colorValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  padding: 4px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+.pickerDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border);
+  z-index: 100;
+  animation: slideInDown 0.2s ease-out;
+}
+
+.presetColors {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: var(--spacing-md);
+}
+
+.presetColor {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.presetColor:hover {
+  transform: scale(1.1);
+  border-color: var(--color-text);
+  box-shadow: var(--shadow-md);
+}
+
+.presetColor.active {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 3px var(--color-border);
+}
+
+.checkmark {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.customColor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.customLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-textSecondary);
+}
+
+.nativeColorInput {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.nativeColorInput::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.nativeColorInput::-webkit-color-swatch {
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .presetColors {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

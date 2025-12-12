@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import styles from './Modal.module.css';
+import styles from './Model.module.css';
 
 const Modal = ({ isOpen, onClose, title, children, size = 'medium' }) => {
   useEffect(() => {
