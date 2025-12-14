@@ -13,6 +13,8 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
   });
   const [swipedItemId, setSwipedItemId] = useState(null);
 
+  const MAX_PINNED = 5;
+
   const formatDate = dateString => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -43,12 +45,21 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
       .slice(0, 2);
 
   const togglePin = groupId => {
-    const updated = pinnedGroups.includes(groupId)
-      ? pinnedGroups.filter(id => id !== groupId)
-      : [...pinnedGroups, groupId];
-
-    setPinnedGroups(updated);
-    localStorage.setItem('pinnedGroups', JSON.stringify(updated));
+    const isPinned = pinnedGroups.includes(groupId);
+    
+    if (isPinned) {
+      const updated = pinnedGroups.filter(id => id !== groupId);
+      setPinnedGroups(updated);
+      localStorage.setItem('pinnedGroups', JSON.stringify(updated));
+    } else {
+      if (pinnedGroups.length >= MAX_PINNED) {
+        alert(`You can only pin up to ${MAX_PINNED} groups`);
+        return;
+      }
+      const updated = [...pinnedGroups, groupId];
+      setPinnedGroups(updated);
+      localStorage.setItem('pinnedGroups', JSON.stringify(updated));
+    }
     setSwipedItemId(null);
   };
 
@@ -75,6 +86,7 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
     const isOnline = group.online_members > 0;
     const isPinned = pinnedGroups.includes(group.group_id);
     const isSwiped = swipedItemId === group.group_id;
+    const canShowPin = isPinned || pinnedGroups.length < MAX_PINNED;
 
     const { elementRef, swipeDistance } = useSwipeGesture(
       () => setSwipedItemId(group.group_id),
@@ -118,18 +130,20 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
                 <span className={styles.groupDate}>
                   {formatDate(group.last_message?.created_at || group.created_at)}
                 </span>
-                <button
-                  className={styles.pinButton}
-                  onClick={e => {
-                    e.stopPropagation();
-                    togglePin(group.group_id);
-                  }}
-                >
-                  <img
-                    src={isPinned ? pinnedIcon : pinIcon}
-                    alt="pin"
-                  />
-                </button>
+                {canShowPin && (
+                  <button
+                    className={styles.pinButton}
+                    onClick={e => {
+                      e.stopPropagation();
+                      togglePin(group.group_id);
+                    }}
+                  >
+                    <img
+                      src={isPinned ? pinnedIcon : pinIcon}
+                      alt="pin"
+                    />
+                  </button>
+                )}
               </div>
             </div>
 
