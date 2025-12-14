@@ -113,7 +113,7 @@ const MessageBubble = ({
     }
 
     if (!highlightTerm || !message.content) {
-      return message.content;
+      return message.content || '';
     }
 
     const term = highlightTerm.toLowerCase();
@@ -176,6 +176,10 @@ const MessageBubble = ({
   const reactions = message.reactions || [];
   const hasReactions = reactions.length > 0;
 
+  if (!message.content && !isFile && !isPoll) {
+    return null;
+  }
+
   return (
     <div 
       className={`
@@ -225,11 +229,15 @@ const MessageBubble = ({
         {showMenu && (
           <div className={styles.contextMenu}>
             <button onClick={() => {
-              onReply && onReply(message);
+              if (onReply) {
+                onReply(message);
+              }
               setShowMenu(false);
             }}>Reply</button>
             <button onClick={() => {
-              onReact && onReact(message);
+              if (onReact) {
+                onReact(message);
+              }
               setShowMenu(false);
             }}>React</button>
             {isOwn && <button>Edit</button>}

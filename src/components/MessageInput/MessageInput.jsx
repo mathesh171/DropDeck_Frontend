@@ -24,7 +24,7 @@ const MessageInput = ({
 
   const handleSendMessage = () => {
     if (!content.trim()) return;
-    onSendMessage(content);
+    onSendMessage(content, 'text');
     setContent('');
   };
 
@@ -82,11 +82,13 @@ const MessageInput = ({
 
   const handleInputChange = (e) => {
     setContent(e.target.value);
-    onTyping?.();
+    if (onTyping) {
+      onTyping();
+    }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }

@@ -150,7 +150,6 @@ const ChatPage = () => {
         Authorization: `Bearer ${t}`
       }
     });
-    fetchGroups(t);
   };
 
   const filteredGroups = groups.filter(g =>
@@ -283,9 +282,7 @@ const ChatPage = () => {
               <ChatWindow
                 group={selectedGroup}
                 user={user}
-                onNewMessage={() => {
-                  fetchGroups(localStorage.getItem('token'));
-                }}
+                onNewMessage={() => {}}
                 searchTerm={chatSearchTerm}
                 searchNavDirection={chatSearchNav}
                 onSearchNavHandled={() => setChatSearchNav(null)}
