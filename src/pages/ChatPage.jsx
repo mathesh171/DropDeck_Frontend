@@ -11,12 +11,14 @@ import GlobalSearch from '../components/GlobalSearch/GlobalSearch';
 import CommandPalette from '../components/CommandPalette/CommandPalette';
 import FAB from '../components/FAB/FAB';
 import ToastContainer from '../components/ui/Toast/ToastContainer';
+import KeyboardShortcutsHelp from '../components/KeyboardShortcuts/KeyboardShortcutsHelp';
 import CreateGroupIcon from '../assets/CreateGroup.png';
 import JoinGroupIcon from '../assets/JoinGroup.png';
 import { socket } from '../utils/socket';
 import { API_LINK } from '../config.js';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../hooks/useToast';
+import { useKeyboard } from '../hooks/useKeyboard';
 
 const ChatPage = () => {
   const [groups, setGroups] = useState([]);
@@ -28,7 +30,9 @@ const ChatPage = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [showGlobalSearch, setShowGlobalSearch] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [groupsLoading, setGroupsLoading] = useState(true);
+  const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
   const isSocketInitialized = useRef(false);
   const navigate = useNavigate();
   const { toggleTheme } = useTheme();
@@ -65,25 +69,38 @@ const ChatPage = () => {
     };
   }, [user]);
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-      const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
-
-      if (cmdOrCtrl && e.key === 'k') {
+  useKeyboard({
+    'ctrl+k': () => setShowCommandPalette(true),
+    'ctrl+f': () => setShowGlobalSearch(true),
+    'ctrl+n': () => navigate('/create-group'),
+    'ctrl+j': () => navigate('/join-group'),
+    'ctrl+,': () => navigate('/settings'),
+    'ctrl+d': () => toggleTheme(),
+    '?': () => setShowShortcutsHelp(true),
+    'escape': () => {
+      setShowCommandPalette(false);
+      setShowGlobalSearch(false);
+      setShowShortcutsHelp(false);
+      setShowProfile(false);
+    },
+    'arrowup': (e) => {
+      if (groups.length > 0 && !selectedGroup) {
         e.preventDefault();
-        setShowCommandPalette(true);
+        setSelectedGroupIndex(prev => Math.max(0, prev - 1));
       }
-
-      if (cmdOrCtrl && e.key === 'f') {
+    },
+    'arrowdown': (e) => {
+      if (groups.length > 0 && !selectedGroup) {
         e.preventDefault();
-        setShowGlobalSearch(true);
+        setSelectedGroupIndex(prev => Math.min(groups.length - 1, prev + 1));
       }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    },
+    'enter': () => {
+      if (groups.length > 0 && !selectedGroup) {
+        handleSelectGroup(groups[selectedGroupIndex]);
+      }
+    }
+  }, [showCommandPalette, showGlobalSearch, showShortcutsHelp, showProfile, groups, selectedGroup, selectedGroupIndex]);
 
   const fetchUserProfile = async storedToken => {
     try {
@@ -147,7 +164,14 @@ const ChatPage = () => {
         <div className={styles.sidebar}>
           <div className={styles.sidebarHeader}>
             <div className={styles.topIcons}>
-              <div className={styles.iconCircle} onClick={() => setShowProfile(true)}>
+              <div 
+                className={styles.iconCircle} 
+                onClick={() => setShowProfile(true)}
+                role="button"
+                tabIndex={0}
+                aria-label="Open profile"
+                onKeyDown={(e) => e.key === 'Enter' && setShowProfile(true)}
+              >
                 {user?.avatar_url || user?.avatarurl ? (
                   <img
                     src={user.avatar_url || user.avatarurl}
@@ -164,11 +188,13 @@ const ChatPage = () => {
                 className={styles.searchBar}
                 value={groupSearch}
                 onChange={e => setGroupSearch(e.target.value)}
+                aria-label="Search groups"
               />
               <button
                 className={styles.iconCircle}
                 onClick={() => setShowGlobalSearch(true)}
                 title="Global Search (Ctrl+F)"
+                aria-label="Global Search"
               >
                 🔍
               </button>
@@ -179,12 +205,20 @@ const ChatPage = () => {
                 />
               )}
               <ThemeToggle />
-              <div className={styles.iconCircle} onClick={() => navigate('/create-group')}>
+              <button
+                className={styles.iconCircle}
+                onClick={() => navigate('/create-group')}
+                aria-label="Create group"
+              >
                 <img src={CreateGroupIcon} className={styles.smallIcon} alt="Create" />
-              </div>
-              <div className={styles.iconCircle} onClick={() => navigate('/join-group')}>
+              </button>
+              <button
+                className={styles.iconCircle}
+                onClick={() => navigate('/join-group')}
+                aria-label="Join group"
+              >
                 <img src={JoinGroupIcon} className={styles.smallIcon} alt="Join" />
-              </div>
+              </button>
             </div>
           </div>
           <GroupList
@@ -194,7 +228,7 @@ const ChatPage = () => {
             loading={groupsLoading}
           />
         </div>
-        <div className={styles.mainContent}>
+        <div className={styles.mainContent} role="main">
           {selectedGroup ? (
             <>
               <ChatHeader
@@ -224,6 +258,12 @@ const ChatPage = () => {
                 onClick={() => setShowCommandPalette(true)}
               >
                 <kbd>⌘</kbd> + <kbd>K</kbd> for quick actions
+              </button>
+              <button 
+                className={styles.helpButton}
+                onClick={() => setShowShortcutsHelp(true)}
+              >
+                <kbd>?</kbd> for keyboard shortcuts
               </button>
             </div>
           )}
@@ -256,6 +296,11 @@ const ChatPage = () => {
         groups={groups}
         onSelectGroup={handleSelectGroup}
         toggleTheme={toggleTheme}
+      />
+
+      <KeyboardShortcutsHelp
+        isOpen={showShortcutsHelp}
+        onClose={() => setShowShortcutsHelp(false)}
       />
 
       <FAB

@@ -260,4 +260,43 @@
   .hover-scale:hover {
     transform: none !important;
   }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    
+    .animate-fadeIn,
+    .animate-fadeOut,
+    .animate-slideInUp,
+    .animate-slideInDown,
+    .animate-slideInLeft,
+    .animate-slideInRight,
+    .animate-scaleIn,
+    .animate-pulse,
+    .animate-spin,
+    .animate-bounce {
+      animation: none !important;
+    }
+    
+    .hover-lift:hover,
+    .hover-scale:hover {
+      transform: none !important;
+    }
+
+    [class*="Animation"],
+    [class*="animation"] {
+      animation: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
 }

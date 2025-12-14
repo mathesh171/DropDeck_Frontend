@@ -20,12 +20,25 @@ export const ThemeProvider = ({ children }) => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleChange = (e) => setPrefersReducedMotion(e.matches);
+    
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   useEffect(() => {
     const theme = isDark ? darkTheme : lightTheme;
     applyTheme(theme);
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-motion', prefersReducedMotion ? 'reduce' : 'full');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  }, [isDark]);
+  }, [isDark, prefersReducedMotion]);
 
   const toggleTheme = () => {
     setIsDark(prev => !prev);
@@ -35,6 +48,7 @@ export const ThemeProvider = ({ children }) => {
     isDark,
     theme: isDark ? darkTheme : lightTheme,
     toggleTheme,
+    prefersReducedMotion,
   };
 
   return (

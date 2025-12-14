@@ -242,7 +242,13 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
                 <span className={styles.sectionCount}>{sortedPinned.length}</span>
               </div>
               {sortedPinned.map(group => (
-                <GroupItem key={group.group_id} group={group} isPinned={true} />
+                    <GroupItem 
+                      key={group.group_id} 
+                      group={group} 
+                      isPinned={true}
+                      role="listitem"
+                      aria-label={`${group.group_name}, ${group.unread_count || 0} unread messages`}
+                    />
               ))}
             </div>
           )}
