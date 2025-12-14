@@ -76,7 +76,7 @@ const NotificationBell = ({ userId, token }) => {
       const rect = buttonRef.current.getBoundingClientRect();
       setDropdownPosition({
         top: rect.bottom + 8,
-        right: window.innerWidth - rect.right
+        right: window.innerWidth - rect.right - 150
       });
     }
   };

@@ -346,3 +346,26 @@
     opacity: 1;
   }
 }
+
+.iconImage {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.sendIconImage {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.dragIcon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+[data-theme="dark"] .iconImage {
+  filter: brightness(0.9);
+}

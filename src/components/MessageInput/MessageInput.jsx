@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './MessageInput.module.css';
+import PollIcon from '../../assets/polling.png';
+import UploadIcon from '../../assets/upload.png';
+import SendIcon from '../../assets/send.png';
 
 const MessageInput = ({ 
   onSendMessage, 
@@ -97,7 +100,7 @@ const MessageInput = ({
       {isDragging && (
         <div className={styles.dragOverlay}>
           <div className={styles.dragContent}>
-            <span className={styles.dragIcon}>📎</span>
+            <img src={UploadIcon} alt="Upload" className={styles.dragIcon} />
             <p>Drop file to upload</p>
           </div>
         </div>
@@ -127,7 +130,7 @@ const MessageInput = ({
             onClick={() => setShowPollModal(true)}
             title="Create a poll"
           >
-            📊
+            <img src={PollIcon} alt="Poll" className={styles.iconImage} />
           </button>
 
           <input
@@ -141,7 +144,7 @@ const MessageInput = ({
           />
 
           <label className={styles.fileLabel}>
-            📎
+            <img src={UploadIcon} alt="Upload" className={styles.iconImage} />
             <input
               ref={fileInputRef}
               type="file"
@@ -155,7 +158,7 @@ const MessageInput = ({
             onClick={handleSendMessage}
             disabled={!content.trim()}
           >
-            ➤
+            <img src={SendIcon} alt="Send" className={styles.sendIconImage} />
           </button>
         </div>
       </div>

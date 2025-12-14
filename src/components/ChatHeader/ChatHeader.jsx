@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './ChatHeader.module.css';
 import { getImageUrl } from '../../utils/api.js';
+import SearchIcon from '../../assets/Search.png';
 
 const ChatHeader = ({
   group,
@@ -91,7 +92,7 @@ const ChatHeader = ({
           type="button"
           onClick={handleSearchClick}
         >
-          🔍
+          <img src={SearchIcon} alt="Search" className={styles.iconImage} />
         </button>
         <button className={styles.iconButton} title="Menu" type="button">
           ⋮
