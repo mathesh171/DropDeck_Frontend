@@ -251,6 +251,16 @@
   animation: slideInDown 0.2s ease-out;
 }
 
+.bellIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  transition: transform var(--transition-fast);
+}
+
+.bellButton:hover .bellIcon {
+  transform: rotate(15deg);
+}
 
 @keyframes bellRing {
   0%, 100% {

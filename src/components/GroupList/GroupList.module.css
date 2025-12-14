@@ -224,7 +224,6 @@
 }
 
 .pinButton:hover {
-  background: var(--color-primary);
   transform: translateY(-50%) scale(1.1);
 }
 

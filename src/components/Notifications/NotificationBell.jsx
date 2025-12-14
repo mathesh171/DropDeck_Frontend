@@ -4,6 +4,8 @@ import { io } from 'socket.io-client';
 import styles from './NotificationBell.module.css';
 import { API_LINK } from '../../config.js';
 import { toast } from '../../utils/toast';
+import noBell from '../../assets/NoNotificationBell.png';
+import haveBell from '../../assets/HaveNotificationBell.png';
 
 const NotificationBell = ({ userId, token }) => {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -19,31 +21,29 @@ const NotificationBell = ({ userId, token }) => {
     if (!token) return;
     try {
       const res = await fetch(`${API_LINK}/api/notifications?unread_only=true`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (!res.ok) return;
       const data = await res.json();
       setUnreadCount(data.unread_count || 0);
       setNotifications(data.notifications || []);
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    }
+    } catch {}
   };
 
   const markAllRead = async () => {
     if (!token || unreadCount === 0) return;
-    const ids = notifications.map((n) => n.notification_id);
+    const ids = notifications.map(n => n.notification_id);
     if (!ids.length) return;
     try {
       await fetch(`${API_LINK}/api/notifications/mark-read`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ notification_ids: ids }),
+        body: JSON.stringify({ notification_ids: ids })
       });
       setUnreadCount(0);
       setNotifications([]);
       toast.success('All notifications marked as read');
-    } catch (error) {
+    } catch {
       toast.error('Failed to mark notifications as read');
     }
   };
@@ -52,20 +52,19 @@ const NotificationBell = ({ userId, token }) => {
     if (!token) return;
     setLoadingAction(true);
     try {
-      const response = await fetch(`${API_LINK}/api/notifications/join-request/`, {
+      const res = await fetch(`${API_LINK}/api/notifications/join-request/action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ notification_id: notificationId, action }),
+        body: JSON.stringify({ notification_id: notificationId, action })
       });
-      
-      if (response.ok) {
-        await fetchNotifications();
+      if (res.ok) {
+        fetchNotifications();
         toast.success(action === 'accept' ? 'User added to group successfully' : 'Request declined');
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to process request');
+        const err = await res.json();
+        toast.error(err.error || 'Failed to process request');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to process request');
     } finally {
       setLoadingAction(false);
@@ -77,7 +76,7 @@ const NotificationBell = ({ userId, token }) => {
       const rect = buttonRef.current.getBoundingClientRect();
       setDropdownPosition({
         top: rect.bottom + 8,
-        right: window.innerWidth - rect.right,
+        right: window.innerWidth - rect.right
       });
     }
   };
@@ -90,28 +89,13 @@ const NotificationBell = ({ userId, token }) => {
     if (!userId) return;
     const s = io(API_LINK);
     s.emit('joinGroups', userId);
-    s.on('notificationUpdate', (data) => {
+    s.on('notificationUpdate', data => {
       fetchNotifications();
-      if (data && data.message) {
-        toast.info(data.message);
-        if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification('DropDeck', {
-            body: data?.message || 'New notification',
-            icon: '/logo.png',
-            badge: '/logo.png',
-          });
-        }
-      }
+      if (data?.message) toast.info(data.message);
     });
     setSocket(s);
     return () => s.disconnect();
   }, [userId]);
-
-  useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, []);
 
   useEffect(() => {
     if (open) {
@@ -126,7 +110,7 @@ const NotificationBell = ({ userId, token }) => {
   }, [open]);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
+    const handleClickOutside = e => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(e.target) &&
@@ -136,13 +120,8 @@ const NotificationBell = ({ userId, token }) => {
         setOpen(false);
       }
     };
-
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    if (open) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [open]);
 
   const renderDropdown = () => {
@@ -155,19 +134,19 @@ const NotificationBell = ({ userId, token }) => {
           ref={dropdownRef}
           className={styles.dropdown}
           style={{
-            position: 'fixed',
             top: `${dropdownPosition.top}px`,
-            right: `${dropdownPosition.right}px`,
+            right: `${dropdownPosition.right}px`
           }}
         >
           <div className={styles.headerRow}>
             <span className={styles.title}>Notifications</span>
             {unreadCount > 0 && (
-              <button type="button" className={styles.markAll} onClick={markAllRead}>
+              <button className={styles.markAll} onClick={markAllRead}>
                 Mark all read
               </button>
             )}
           </div>
+
           {notifications.length === 0 ? (
             <div className={styles.empty}>
               <span className={styles.emptyIcon}>🔕</span>
@@ -175,48 +154,39 @@ const NotificationBell = ({ userId, token }) => {
             </div>
           ) : (
             <ul className={styles.list}>
-              {notifications.map((n) => {
-                const isJoin = n.message && n.message.toLowerCase().includes('requested to join');
-                const uniqueKey = n.notification_id;
-
-                return (
-                  <li key={uniqueKey} className={styles.item}>
-                    <div className={styles.itemContent}>
-                      <div className={styles.message}>{n.message}</div>
-                      <div className={styles.metaRow}>
-                        <span className={styles.meta}>
-                          {n.group_name ? n.group_name : 'System'}
+              {notifications.map(n => (
+                <li key={n.notification_id} className={styles.item}>
+                  <div className={styles.itemContent}>
+                    <div className={styles.message}>{n.message}</div>
+                    <div className={styles.metaRow}>
+                      <span className={styles.meta}>{n.group_name || 'System'}</span>
+                      {n.created_at && (
+                        <span className={styles.time}>
+                          {new Date(n.created_at).toLocaleDateString()}
                         </span>
-                        {n.created_at && (
-                          <span className={styles.time}>
-                            {new Date(n.created_at).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
+                      )}
                     </div>
-                    {isJoin && (
-                      <div className={styles.actionButtons}>
-                        <button
-                          type="button"
-                          className={styles.accept}
-                          disabled={loadingAction}
-                          onClick={() => handleJoinAction(n.notification_id, 'accept')}
-                        >
-                          ✓
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.decline}
-                          disabled={loadingAction}
-                          onClick={() => handleJoinAction(n.notification_id, 'decline')}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
+                  </div>
+                  {n.message?.toLowerCase().includes('requested to join') && (
+                    <div className={styles.actionButtons}>
+                      <button
+                        className={styles.accept}
+                        disabled={loadingAction}
+                        onClick={() => handleJoinAction(n.notification_id, 'accept')}
+                      >
+                        ✓
+                      </button>
+                      <button
+                        className={styles.decline}
+                        disabled={loadingAction}
+                        onClick={() => handleJoinAction(n.notification_id, 'decline')}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </li>
+              ))}
             </ul>
           )}
         </div>
@@ -231,9 +201,13 @@ const NotificationBell = ({ userId, token }) => {
         ref={buttonRef}
         type="button"
         className={`${styles.bellButton} ${unreadCount > 0 ? styles.hasNotifications : ''}`}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(o => !o)}
       >
-        <span className={styles.bellIcon}>🔔</span>
+        <img
+          src={unreadCount > 0 ? haveBell : noBell}
+          alt="notifications"
+          className={styles.bellIcon}
+        />
         {unreadCount > 0 && (
           <span className={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
         )}
