@@ -608,7 +608,7 @@ const UserProfile = ({ user, onUpdate, onClose, onLogout }) => {
             imageSrc={tempImageSrc}
             onCropComplete={handleCropComplete}
             onCancel={handleCropCancel}
-          />
+          />sea
         </Modal>
       )}
     </div>,

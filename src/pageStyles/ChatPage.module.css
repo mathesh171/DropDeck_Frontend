@@ -83,12 +83,10 @@
   outline: none;
   font-size: 14px;
   background: rgba(255, 255, 255, 0.9);
-  color: #000000;
   height: 40px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all var(--transition-fast);
   animation: expandSearch 0.3s ease-out;
-  cursor: text;
 }
 
 @keyframes expandSearch {
@@ -105,7 +103,6 @@
 .searchBar:focus {
   background: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  cursor: text;
 }
 
 .searchBar::placeholder {
@@ -245,3 +242,4 @@
     font-size: 13px;
   }
 }
+

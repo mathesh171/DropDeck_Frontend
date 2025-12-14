@@ -347,10 +347,10 @@ const ChatPage = () => {
         onClose={() => setShowShortcutsHelp(false)}
       />
 
-      <FAB
+      {/* <FAB
         onCommandPalette={() => setShowCommandPalette(true)}
         onGlobalSearch={() => setShowGlobalSearch(true)}
-      />
+      /> */}
 
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </>

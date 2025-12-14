@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background-color: #6fa8c4;
+  background: var(--color-primaryLight);
   border-bottom: 1px solid #5a8ba3;
   position: relative;
   z-index: 1;

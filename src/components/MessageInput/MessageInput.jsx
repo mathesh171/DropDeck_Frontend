@@ -23,13 +23,12 @@ const MessageInput = ({
   }, [replyTo]);
 
   const handleSendMessage = () => {
-    if (content.trim()) {
-      onSendMessage(content);
-      setContent('');
-    }
+    if (!content.trim()) return;
+    onSendMessage(content);
+    setContent('');
   };
 
-  const handleFileChange = e => {
+  const handleFileChange = (e) => {
     const selectedFile = e.target.files && e.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
@@ -47,14 +46,7 @@ const MessageInput = ({
 
   const handleCreatePoll = () => {
     const validOptions = pollOptions.filter(opt => opt.trim().length > 0);
-    if (!pollQuestion.trim()) {
-      alert('Please enter a poll question');
-      return;
-    }
-    if (validOptions.length < 2) {
-      alert('Please enter at least 2 options');
-      return;
-    }
+    if (!pollQuestion.trim() || validOptions.length < 2) return;
 
     const pollContent = JSON.stringify({
       question: pollQuestion,
@@ -80,7 +72,6 @@ const MessageInput = ({
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
     const files = e.dataTransfer.files;
     if (files && files[0]) {
       setFile(files[0]);
@@ -91,13 +82,11 @@ const MessageInput = ({
 
   const handleInputChange = (e) => {
     setContent(e.target.value);
-    if (onTyping) {
-      onTyping();
-    }
+    onTyping?.();
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
       e.preventDefault();
       handleSendMessage();
     }
@@ -113,8 +102,8 @@ const MessageInput = ({
           </div>
         </div>
       )}
-      
-      <div 
+
+      <div
         className={styles.messageInputContainer}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -148,7 +137,7 @@ const MessageInput = ({
             className={styles.input}
             value={content}
             onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
           />
 
           <label className={styles.fileLabel}>
@@ -173,7 +162,7 @@ const MessageInput = ({
 
       {showPollModal && (
         <div className={styles.pollModal} onClick={() => setShowPollModal(false)}>
-          <div className={styles.pollModalContent} onClick={e => e.stopPropagation()}>
+          <div className={styles.pollModalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.pollModalHeader}>
               <h3>Create a Poll</h3>
               <button className={styles.closeModal} onClick={() => setShowPollModal(false)}>
@@ -186,7 +175,7 @@ const MessageInput = ({
               placeholder="Poll question"
               className={styles.pollInput}
               value={pollQuestion}
-              onChange={e => setPollQuestion(e.target.value)}
+              onChange={(e) => setPollQuestion(e.target.value)}
             />
 
             <div className={styles.pollOptionsContainer}>
@@ -197,7 +186,7 @@ const MessageInput = ({
                   placeholder={`Option ${index + 1}`}
                   className={styles.pollOption}
                   value={option}
-                  onChange={e => handlePollOptionChange(index, e.target.value)}
+                  onChange={(e) => handlePollOptionChange(index, e.target.value)}
                 />
               ))}
             </div>
