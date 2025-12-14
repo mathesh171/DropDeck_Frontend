@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage';
 import ChatPage from './pages/ChatPage';
 import JoinGroupPage from './pages/JoinGroupPage';
 import CreateGroupPage from './pages/CreateGroupPage';
+import SettingsPage from './pages/SettingsPage';
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
 
@@ -40,6 +41,14 @@ function App() {
           element={
             <PrivateRoute>
               <JoinGroupPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <SettingsPage />
             </PrivateRoute>
           }
         />

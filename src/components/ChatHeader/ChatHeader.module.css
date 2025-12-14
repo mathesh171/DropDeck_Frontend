@@ -6,6 +6,7 @@
   background-color: #6fa8c4;
   border-bottom: 1px solid #5a8ba3;
   position: relative;
+  z-index: 1;
 }
 
 .groupInfo {

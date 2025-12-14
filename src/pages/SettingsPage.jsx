@@ -135,10 +135,10 @@ const SettingsPage = () => {
               <span className={styles.infoLabel}>Developer:</span>
               <span className={styles.infoValue}>DropDeck Team</span>
             </div>
-            <div className={styles.infoItem}>
+            {/* <div className={styles.infoItem}>
               <span className={styles.infoLabel}>License:</span>
               <span className={styles.infoValue}>MIT</span>
-            </div>
+            </div> */}
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Website:</span>
               <a href="#" className={styles.infoLink}>dropdeck.com</a>
