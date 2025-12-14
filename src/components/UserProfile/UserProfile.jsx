@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import styles from './UserProfile.module.css';
 import AvatarCrop from '../AvatarCrop/AvatarCrop';
 import Modal from '../ui/Model/Model';
+import { API_LINK } from '../../config.js';
 
 const UserProfile = ({ user, onUpdate, onClose, onLogout }) => {
   const [editMode, setEditMode] = useState({ name: false, email: false, password: false, bio: false, status: false });
@@ -54,17 +55,36 @@ const UserProfile = ({ user, onUpdate, onClose, onLogout }) => {
     reader.readAsDataURL(file);
   };
 
-  const handleCropComplete = (blob) => {
+  const handleCropComplete = async (blob) => {
     const url = URL.createObjectURL(blob);
     setPreviewAvatar(url);
     setAvatarFile(blob);
     setShowCropModal(false);
     setTempImageSrc(null);
 
-    if (onUpdate) {
-      const formData = new FormData();
-      formData.append('avatar', blob, 'avatar.jpg');
-      onUpdate({ avatar: formData });
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const formData = new FormData();
+    formData.append('avatar', blob, 'avatar.jpg');
+
+    try {
+      const response = await fetch(`${API_LINK}/api/auth/profile/avatar`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (onUpdate) {
+          onUpdate({ avatar_url: data.avatar_url });
+        }
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error);
     }
   };
 

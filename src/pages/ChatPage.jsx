@@ -20,6 +20,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../hooks/useToast';
 import { useKeyboard } from '../hooks/useKeyboard';
 
+
 const ChatPage = () => {
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -38,7 +39,9 @@ const ChatPage = () => {
   const { toggleTheme } = useTheme();
   const { toasts, removeToast } = useToast();
 
+
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -49,6 +52,7 @@ const ChatPage = () => {
     fetchUserProfile(storedToken);
     fetchGroups(storedToken);
   }, [navigate]);
+
 
   useEffect(() => {
     if (user && !isSocketInitialized.current) {
@@ -68,6 +72,7 @@ const ChatPage = () => {
       socket.off('notificationUpdate');
     };
   }, [user]);
+
 
   useKeyboard({
     'ctrl+k': () => setShowCommandPalette(true),
@@ -102,6 +107,7 @@ const ChatPage = () => {
     }
   }, [showCommandPalette, showGlobalSearch, showShortcutsHelp, showProfile, groups, selectedGroup, selectedGroupIndex]);
 
+
   const fetchUserProfile = async storedToken => {
     try {
       const response = await fetch(`${API_LINK}/api/auth/profile`, {
@@ -113,6 +119,7 @@ const ChatPage = () => {
       }
     } catch {}
   };
+
 
   const fetchGroups = async storedToken => {
     setGroupsLoading(true);
@@ -131,6 +138,7 @@ const ChatPage = () => {
     setGroupsLoading(false);
   };
 
+
   const handleSelectGroup = async group => {
     setSelectedGroup(group);
     setChatSearchTerm('');
@@ -146,17 +154,27 @@ const ChatPage = () => {
     fetchGroups(t);
   };
 
+
   const filteredGroups = groups.filter(g =>
     (g.group_name || '').toLowerCase().includes(groupSearch.toLowerCase())
   );
+
 
   const handleChatSearchChange = term => {
     setChatSearchTerm(term);
   };
 
+
   const handleChatSearchNav = direction => {
     setChatSearchNav(direction);
   };
+
+
+  const getUserInitial = username => {
+    if (!username) return 'U';
+    return username.charAt(0).toUpperCase();
+  };
+
 
   return (
     <>
@@ -179,7 +197,9 @@ const ChatPage = () => {
                     className={styles.profileImg}
                   />
                 ) : (
-                  <span className={styles.defaultUserIcon}>U</span>
+                  <span className={styles.defaultUserIcon}>
+                    {getUserInitial(user?.name)}
+                  </span>
                 )}
               </div>
               <input
@@ -196,7 +216,7 @@ const ChatPage = () => {
                 title="Global Search (Ctrl+F)"
                 aria-label="Global Search"
               >
-                
+                🔍
               </button> */}
               {user && (
                 <NotificationBell
@@ -270,6 +290,7 @@ const ChatPage = () => {
         </div>
       </div>
 
+
       {showProfile && (
         <UserProfile
           user={user}
@@ -284,11 +305,13 @@ const ChatPage = () => {
         />
       )}
 
+
       <GlobalSearch
         isOpen={showGlobalSearch}
         onClose={() => setShowGlobalSearch(false)}
         onSelectGroup={handleSelectGroup}
       />
+
 
       <CommandPalette
         isOpen={showCommandPalette}
@@ -298,19 +321,23 @@ const ChatPage = () => {
         toggleTheme={toggleTheme}
       />
 
+
       <KeyboardShortcutsHelp
         isOpen={showShortcutsHelp}
         onClose={() => setShowShortcutsHelp(false)}
       />
+
 
       <FAB
         onCommandPalette={() => setShowCommandPalette(true)}
         onGlobalSearch={() => setShowGlobalSearch(true)}
       />
 
+
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </>
   );
 };
+
 
 export default ChatPage;
