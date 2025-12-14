@@ -190,21 +190,21 @@ const ChatPage = () => {
                 onChange={e => setGroupSearch(e.target.value)}
                 aria-label="Search groups"
               />
-              <button
+              {/* <button
                 className={styles.iconCircle}
                 onClick={() => setShowGlobalSearch(true)}
                 title="Global Search (Ctrl+F)"
                 aria-label="Global Search"
               >
-                🔍
-              </button>
+                
+              </button> */}
               {user && (
                 <NotificationBell
                   userId={user.user_id || user.userid}
                   token={token}
                 />
               )}
-              <ThemeToggle />
+              {/* <ThemeToggle /> */}
               <button
                 className={styles.iconCircle}
                 onClick={() => navigate('/create-group')}

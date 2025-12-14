@@ -3,6 +3,8 @@ import styles from './GroupList.module.css';
 import { getImageUrl } from '../../utils/api.js';
 import Skeleton from '../ui/Skeleton/Skeleton';
 import { useSwipeGesture } from '../../hooks/useSwipeGesture';
+import pinIcon from '../../assets/pin.png';
+import pinnedIcon from '../../assets/pinned.png';
 
 const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) => {
   const [pinnedGroups, setPinnedGroups] = useState(() => {
@@ -23,27 +25,24 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
         minute: '2-digit',
         hour12: true
       });
-    } else if (days === 1) {
-      return 'Yesterday';
-    } else {
-      return date.toLocaleDateString('en-US', {
-        month: 'numeric',
-        day: 'numeric',
-        year: '2-digit'
-      });
     }
+    if (days === 1) return 'Yesterday';
+    return date.toLocaleDateString('en-US', {
+      month: 'numeric',
+      day: 'numeric',
+      year: '2-digit'
+    });
   };
 
-  const getInitials = name => {
-    return name
+  const getInitials = name =>
+    name
       .split(' ')
       .map(word => word[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
-  };
 
-  const togglePin = (groupId) => {
+  const togglePin = groupId => {
     const updated = pinnedGroups.includes(groupId)
       ? pinnedGroups.filter(id => id !== groupId)
       : [...pinnedGroups, groupId];
@@ -53,17 +52,15 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
     setSwipedItemId(null);
   };
 
-  const uniqueGroupsMap = new Map();
-  groups.forEach(g => {
-    uniqueGroupsMap.set(g.group_id, g);
-  });
-  const uniqueGroups = Array.from(uniqueGroupsMap.values());
+  const uniqueGroups = Array.from(
+    new Map(groups.map(g => [g.group_id, g])).values()
+  );
 
   const pinned = uniqueGroups.filter(g => pinnedGroups.includes(g.group_id));
   const unpinned = uniqueGroups.filter(g => !pinnedGroups.includes(g.group_id));
 
-  const sortGroups = (groupsToSort) => {
-    return groupsToSort.sort((a, b) => {
+  const sortGroups = list =>
+    list.sort((a, b) => {
       const aTime = a.last_message
         ? new Date(a.last_message.created_at)
         : new Date(a.created_at);
@@ -72,48 +69,11 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
         : new Date(b.created_at);
       return bTime - aTime;
     });
-  };
 
-  const sortedPinned = sortGroups(pinned);
-  const sortedUnpinned = sortGroups(unpinned);
-
-  const getLastMessagePreview = (group) => {
-    const last = group.last_message;
-    if (!last) return 'No messages yet';
-
-    if (last.message_type === 'file') {
-      return (
-        <span className={styles.messageWithIcon}>
-          <span className={styles.fileIcon}>📎</span>
-          {last.file_name || last.content || 'File'}
-        </span>
-      );
-    }
-
-    if (last.message_type === 'poll') {
-      return (
-        <span className={styles.messageWithIcon}>
-          <span className={styles.pollIcon}>📊</span>
-          Poll
-        </span>
-      );
-    }
-
-    if (last.message_type === 'image') {
-      return (
-        <span className={styles.messageWithIcon}>
-          <span className={styles.imageIcon}>🖼️</span>
-          Image
-        </span>
-      );
-    }
-
-    return last.content;
-  };
-
-  const GroupItem = ({ group, isPinned }) => {
+  const GroupItem = ({ group }) => {
     const unread = group.unread_count || 0;
     const isOnline = group.online_members > 0;
+    const isPinned = pinnedGroups.includes(group.group_id);
     const isSwiped = swipedItemId === group.group_id;
 
     const { elementRef, swipeDistance } = useSwipeGesture(
@@ -122,27 +82,18 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
       50
     );
 
-    const handleItemClick = () => {
-      if (isSwiped) {
-        setSwipedItemId(null);
-      } else {
-        onSelectGroup(group);
-      }
-    };
-
     return (
       <div
         ref={elementRef}
         className={`${styles.groupItemWrapper} ${isSwiped ? styles.swiped : ''}`}
-        onClick={handleItemClick}
+        onClick={() => (isSwiped ? setSwipedItemId(null) : onSelectGroup(group))}
       >
         <div
           className={`${styles.groupItem} ${
             selectedGroup?.group_id === group.group_id ? styles.active : ''
           }`}
           style={{
-            transform: `translateX(${Math.max(-80, Math.min(0, swipeDistance))}px)`,
-            transition: swipeDistance === 0 ? 'transform 0.3s ease' : 'none'
+            transform: `translateX(${Math.max(-80, Math.min(0, swipeDistance))}px)`
           }}
         >
           <div className={styles.avatarWrapper}>
@@ -157,23 +108,35 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
                 getInitials(group.group_name)
               )}
             </div>
-            {isOnline && <div className={styles.onlineIndicator}></div>}
+            {isOnline && <div className={styles.onlineIndicator} />}
           </div>
 
           <div className={styles.groupInfo}>
             <div className={styles.groupHeader}>
-              <h3 className={styles.groupName}>
-                {isPinned && <span className={styles.pinIcon}>📌</span>}
-                {group.group_name}
-              </h3>
-              <span className={styles.groupDate}>
-                {formatDate(
-                  group.last_message ? group.last_message.created_at : group.created_at
-                )}
-              </span>
+              <h3 className={styles.groupName}>{group.group_name}</h3>
+              <div className={styles.datePinWrapper}>
+                <span className={styles.groupDate}>
+                  {formatDate(group.last_message?.created_at || group.created_at)}
+                </span>
+                <button
+                  className={styles.pinButton}
+                  onClick={e => {
+                    e.stopPropagation();
+                    togglePin(group.group_id);
+                  }}
+                >
+                  <img
+                    src={isPinned ? pinnedIcon : pinIcon}
+                    alt="pin"
+                  />
+                </button>
+              </div>
             </div>
+
             <div className={styles.bottomRow}>
-              <p className={styles.groupMessage}>{getLastMessagePreview(group)}</p>
+              <p className={styles.groupMessage}>
+                {group.last_message?.content || 'No messages yet'}
+              </p>
               {unread > 0 && (
                 <span className={styles.unreadBadge}>
                   {unread > 9 ? '9+' : unread}
@@ -181,29 +144,6 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
               )}
             </div>
           </div>
-
-          <button
-            className={styles.pinButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              togglePin(group.group_id);
-            }}
-            title={isPinned ? 'Unpin' : 'Pin'}
-          >
-            📌
-          </button>
-        </div>
-
-        <div className={styles.swipeActions}>
-          <button
-            className={styles.swipeActionPin}
-            onClick={(e) => {
-              e.stopPropagation();
-              togglePin(group.group_id);
-            }}
-          >
-            {isPinned ? '📌 Unpin' : '📌 Pin'}
-          </button>
         </div>
       </div>
     );
@@ -227,47 +167,12 @@ const GroupList = ({ groups, selectedGroup, onSelectGroup, loading = false }) =>
 
   return (
     <div className={styles.groupList}>
-      {uniqueGroups.length === 0 ? (
-        <div className={styles.emptyState}>
-          <span className={styles.emptyIcon}>💬</span>
-          <p>No groups yet</p>
-          <p className={styles.emptyHint}>Create your first group to get started</p>
-        </div>
-      ) : (
-        <>
-          {sortedPinned.length > 0 && (
-            <div className={styles.section}>
-              <div className={styles.sectionHeader}>
-                <span className={styles.sectionTitle}>Pinned</span>
-                <span className={styles.sectionCount}>{sortedPinned.length}</span>
-              </div>
-              {sortedPinned.map(group => (
-                    <GroupItem 
-                      key={group.group_id} 
-                      group={group} 
-                      isPinned={true}
-                      role="listitem"
-                      aria-label={`${group.group_name}, ${group.unread_count || 0} unread messages`}
-                    />
-              ))}
-            </div>
-          )}
-
-          {sortedUnpinned.length > 0 && (
-            <div className={styles.section}>
-              {sortedPinned.length > 0 && (
-                <div className={styles.sectionHeader}>
-                  <span className={styles.sectionTitle}>All Chats</span>
-                  <span className={styles.sectionCount}>{sortedUnpinned.length}</span>
-                </div>
-              )}
-              {sortedUnpinned.map(group => (
-                <GroupItem key={group.group_id} group={group} isPinned={false} />
-              ))}
-            </div>
-          )}
-        </>
-      )}
+      {sortGroups(pinned).map(g => (
+        <GroupItem key={g.group_id} group={g} />
+      ))}
+      {sortGroups(unpinned).map(g => (
+        <GroupItem key={g.group_id} group={g} />
+      ))}
     </div>
   );
 };
