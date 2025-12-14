@@ -14,12 +14,14 @@ import ToastContainer from '../components/ui/Toast/ToastContainer';
 import KeyboardShortcutsHelp from '../components/KeyboardShortcuts/KeyboardShortcutsHelp';
 import CreateGroupIcon from '../assets/CreateGroup.png';
 import JoinGroupIcon from '../assets/JoinGroup.png';
+import SettingsIcon from '../assets/Settings.png';
+import SearchIcon from '../assets/Search.png';
+import MenuIcon from '../assets/menu.png';
 import { socket } from '../utils/socket';
 import { API_LINK } from '../config.js';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../hooks/useToast';
 import { useKeyboard } from '../hooks/useKeyboard';
-
 
 const ChatPage = () => {
   const [groups, setGroups] = useState([]);
@@ -34,14 +36,13 @@ const ChatPage = () => {
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [groupsLoading, setGroupsLoading] = useState(true);
   const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
+  const [showSearchBar, setShowSearchBar] = useState(false);
   const isSocketInitialized = useRef(false);
   const navigate = useNavigate();
   const { toggleTheme } = useTheme();
   const { toasts, removeToast } = useToast();
 
-
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -52,7 +53,6 @@ const ChatPage = () => {
     fetchUserProfile(storedToken);
     fetchGroups(storedToken);
   }, [navigate]);
-
 
   useEffect(() => {
     if (user && !isSocketInitialized.current) {
@@ -73,7 +73,6 @@ const ChatPage = () => {
     };
   }, [user]);
 
-
   useKeyboard({
     'ctrl+k': () => setShowCommandPalette(true),
     'ctrl+f': () => setShowGlobalSearch(true),
@@ -87,6 +86,9 @@ const ChatPage = () => {
       setShowGlobalSearch(false);
       setShowShortcutsHelp(false);
       setShowProfile(false);
+      if (showSearchBar) {
+        setShowSearchBar(false);
+      }
     },
     'arrowup': (e) => {
       if (groups.length > 0 && !selectedGroup) {
@@ -105,8 +107,7 @@ const ChatPage = () => {
         handleSelectGroup(groups[selectedGroupIndex]);
       }
     }
-  }, [showCommandPalette, showGlobalSearch, showShortcutsHelp, showProfile, groups, selectedGroup, selectedGroupIndex]);
-
+  }, [showCommandPalette, showGlobalSearch, showShortcutsHelp, showProfile, groups, selectedGroup, selectedGroupIndex, showSearchBar]);
 
   const fetchUserProfile = async storedToken => {
     try {
@@ -119,7 +120,6 @@ const ChatPage = () => {
       }
     } catch {}
   };
-
 
   const fetchGroups = async storedToken => {
     setGroupsLoading(true);
@@ -138,7 +138,6 @@ const ChatPage = () => {
     setGroupsLoading(false);
   };
 
-
   const handleSelectGroup = async group => {
     setSelectedGroup(group);
     setChatSearchTerm('');
@@ -154,27 +153,31 @@ const ChatPage = () => {
     fetchGroups(t);
   };
 
-
   const filteredGroups = groups.filter(g =>
     (g.group_name || '').toLowerCase().includes(groupSearch.toLowerCase())
   );
-
 
   const handleChatSearchChange = term => {
     setChatSearchTerm(term);
   };
 
-
   const handleChatSearchNav = direction => {
     setChatSearchNav(direction);
   };
-
 
   const getUserInitial = username => {
     if (!username) return 'U';
     return username.charAt(0).toUpperCase();
   };
 
+  const handleSearchClick = () => {
+    setShowSearchBar(true);
+  };
+
+  const handleMenuClick = () => {
+    setShowSearchBar(false);
+    setGroupSearch('');
+  };
 
   return (
     <>
@@ -202,43 +205,64 @@ const ChatPage = () => {
                   </span>
                 )}
               </div>
-              <input
-                type="text"
-                placeholder="Search groups..."
-                className={styles.searchBar}
-                value={groupSearch}
-                onChange={e => setGroupSearch(e.target.value)}
-                aria-label="Search groups"
-              />
-              {/* <button
-                className={styles.iconCircle}
-                onClick={() => setShowGlobalSearch(true)}
-                title="Global Search (Ctrl+F)"
-                aria-label="Global Search"
-              >
-                🔍
-              </button> */}
-              {user && (
-                <NotificationBell
-                  userId={user.user_id || user.userid}
-                  token={token}
-                />
+
+              {showSearchBar ? (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Search groups..."
+                    className={styles.searchBar}
+                    value={groupSearch}
+                    onChange={e => setGroupSearch(e.target.value)}
+                    aria-label="Search groups"
+                    autoFocus
+                  />
+                  <button
+                    className={styles.iconCircle}
+                    onClick={handleMenuClick}
+                    aria-label="Close search"
+                  >
+                    <img src={MenuIcon} className={styles.smallIcon} alt="Menu" />
+                  </button>
+                </>
+              ) : (
+                <div className={styles.rightIcons}>
+                  <button
+                    className={styles.iconCircle}
+                    onClick={handleSearchClick}
+                    aria-label="Search"
+                  >
+                    <img src={SearchIcon} className={styles.smallIcon} alt="Search" />
+                  </button>
+                  {user && (
+                    <NotificationBell
+                      userId={user.user_id || user.userid}
+                      token={token}
+                    />
+                  )}
+                  <button
+                    className={styles.iconCircle}
+                    onClick={() => navigate('/create-group')}
+                    aria-label="Create group"
+                  >
+                    <img src={CreateGroupIcon} className={styles.smallIcon} alt="Create" />
+                  </button>
+                  <button
+                    className={styles.iconCircle}
+                    onClick={() => navigate('/join-group')}
+                    aria-label="Join group"
+                  >
+                    <img src={JoinGroupIcon} className={styles.smallIcon} alt="Join" />
+                  </button>
+                  <button
+                    className={styles.iconCircle}
+                    onClick={() => navigate('/settings')}
+                    aria-label="Settings"
+                  >
+                    <img src={SettingsIcon} className={styles.smallIcon} alt="Settings" />
+                  </button>
+                </div>
               )}
-              {/* <ThemeToggle /> */}
-              <button
-                className={styles.iconCircle}
-                onClick={() => navigate('/create-group')}
-                aria-label="Create group"
-              >
-                <img src={CreateGroupIcon} className={styles.smallIcon} alt="Create" />
-              </button>
-              <button
-                className={styles.iconCircle}
-                onClick={() => navigate('/join-group')}
-                aria-label="Join group"
-              >
-                <img src={JoinGroupIcon} className={styles.smallIcon} alt="Join" />
-              </button>
             </div>
           </div>
           <GroupList
@@ -290,7 +314,6 @@ const ChatPage = () => {
         </div>
       </div>
 
-
       {showProfile && (
         <UserProfile
           user={user}
@@ -305,13 +328,11 @@ const ChatPage = () => {
         />
       )}
 
-
       <GlobalSearch
         isOpen={showGlobalSearch}
         onClose={() => setShowGlobalSearch(false)}
         onSelectGroup={handleSelectGroup}
       />
-
 
       <CommandPalette
         isOpen={showCommandPalette}
@@ -321,23 +342,19 @@ const ChatPage = () => {
         toggleTheme={toggleTheme}
       />
 
-
       <KeyboardShortcutsHelp
         isOpen={showShortcutsHelp}
         onClose={() => setShowShortcutsHelp(false)}
       />
-
 
       <FAB
         onCommandPalette={() => setShowCommandPalette(true)}
         onGlobalSearch={() => setShowGlobalSearch(true)}
       />
 
-
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </>
   );
 };
-
 
 export default ChatPage;
