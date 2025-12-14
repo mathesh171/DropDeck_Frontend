@@ -24,7 +24,7 @@ const LoginPage = () => {
     }
   };
 
-  const handleLoginSubmit = async (email, password) => {
+  const handleLoginSubmit = async ({ email, password }) => {
     setError('');
     if (!email.trim()) {
       setError('Please enter your email');
@@ -73,7 +73,7 @@ const LoginPage = () => {
     }
   };
 
-  const handleSignUpSubmit = async (username, email, password, confirmPassword) => {
+    const handleSignUpSubmit = async ({ username, email, password, confirmPassword }) => {
     setError('');
     if (!username.trim()) setError('Please enter a username');
     else if (!email.trim()) setError('Please enter your email');
