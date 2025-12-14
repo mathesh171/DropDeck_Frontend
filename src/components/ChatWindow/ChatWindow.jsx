@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './ChatWindow.module.css';
 import MessageBubble from '../MessageBubble/MessageBubble';
 import MessageInput from '../MessageInput/MessageInput';
@@ -22,22 +22,14 @@ const ChatWindow = ({
   const messagesEndRef = useRef(null);
   const matchRefs = useRef([]);
   const typingTimeoutRef = useRef(null);
-  const previousGroupId = useRef(null);
 
   useEffect(() => {
     if (!group) return;
 
-    if (previousGroupId.current !== group.group_id) {
-      socket.emit('joinGroupRoom', group.group_id);
-      previousGroupId.current = group.group_id;
-    }
+    socket.emit('joinGroupRoom', group.group_id);
 
-    const handleNewMessage = (newMessage) => {
-      setMessages(prev => {
-        const exists = prev.find(m => m.message_id === newMessage.message_id);
-        if (exists) return prev;
-        return [...prev, newMessage];
-      });
+    const handleNewMessage = () => {
+      fetchMessages();
       if (onNewMessage) onNewMessage();
     };
 
@@ -79,7 +71,7 @@ const ChatWindow = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typingUsers]);
 
-  const fetchMessages = useCallback(async () => {
+  const fetchMessages = async () => {
     if (!group) return;
     setLoading(true);
     const token = localStorage.getItem('token');
@@ -96,9 +88,10 @@ const ChatWindow = ({
         const data = await response.json();
         setMessages(data.messages || []);
       }
-    } catch {}
+    } catch {
+    }
     setLoading(false);
-  }, [group]);
+  };
 
   const handleSendMessage = async (content, messageType = 'text', file) => {
     try {
@@ -119,6 +112,9 @@ const ChatWindow = ({
           }
         );
         if (!uploadRes.ok) return;
+
+        await fetchMessages();
+        if (onNewMessage) onNewMessage();
       } else {
         const payload = { 
           content, 
@@ -129,7 +125,7 @@ const ChatWindow = ({
           payload.reply_to = replyTo.message_id;
         }
 
-        const response = await fetch(
+        await fetch(
           `${API_LINK}/api/messages/groups/${group.group_id}/messages`,
           {
             method: 'POST',
@@ -141,11 +137,6 @@ const ChatWindow = ({
           }
         );
 
-        if (response.ok) {
-          const newMessage = await response.json();
-          setMessages(prev => [...prev, newMessage]);
-        }
-
         socket.emit('sendMessage', { groupId: group.group_id });
         socket.emit('stopTyping', { 
           groupId: group.group_id, 
@@ -154,8 +145,11 @@ const ChatWindow = ({
         });
         
         setReplyTo(null);
+        await fetchMessages();
+        if (onNewMessage) onNewMessage();
       }
-    } catch {}
+    } catch {
+    }
   };
 
   const handleTyping = () => {
@@ -178,17 +172,22 @@ const ChatWindow = ({
     }, 2000);
   };
 
+  const orderedMessages = useMemo(
+    () => messages.slice().reverse(),
+    [messages]
+  );
+
   const matches = useMemo(() => {
     if (!searchTerm) return [];
     const term = searchTerm.toLowerCase();
     const indices = [];
-    messages.forEach((m, idx) => {
+    orderedMessages.forEach((m, idx) => {
       if ((m.content || '').toLowerCase().includes(term)) {
         indices.push(idx);
       }
     });
     return indices;
-  }, [messages, searchTerm]);
+  }, [orderedMessages, searchTerm]);
 
   useEffect(() => {
     matchRefs.current = [];
@@ -243,14 +242,14 @@ const ChatWindow = ({
     <>
       <div className={styles.messagesContainer}>
         <div className={styles.messagesContent}>
-          {messages.length === 0 ? (
+          {orderedMessages.length === 0 ? (
             <div className={styles.emptyMessages}>
               <span className={styles.emptyIcon}>💬</span>
               <p>No messages yet</p>
               <p className={styles.emptyHint}>Start the conversation!</p>
             </div>
           ) : (
-            messages.map((message, index) => {
+            orderedMessages.map((message, index) => {
               const matchIndex = matches.indexOf(index);
               const isMatch = matchIndex !== -1;
               const isActive =

@@ -113,7 +113,7 @@ const MessageBubble = ({
     }
 
     if (!highlightTerm || !message.content) {
-      return message.content || '';
+      return message.content;
     }
 
     const term = highlightTerm.toLowerCase();
@@ -175,10 +175,6 @@ const MessageBubble = ({
 
   const reactions = message.reactions || [];
   const hasReactions = reactions.length > 0;
-
-  if (!message.content && !isFile && !isPoll) {
-    return null;
-  }
 
   return (
     <div 
