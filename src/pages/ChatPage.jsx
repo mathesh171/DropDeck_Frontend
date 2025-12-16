@@ -37,6 +37,7 @@ const ChatPage = () => {
   const [groupsLoading, setGroupsLoading] = useState(true);
   const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
   const [showSearchBar, setShowSearchBar] = useState(false);
+  const [showMobileChat, setShowMobileChat] = useState(false);
   const isSocketInitialized = useRef(false);
   const navigate = useNavigate();
   const { toggleTheme } = useTheme();
@@ -72,6 +73,18 @@ const ChatPage = () => {
       socket.off('notificationUpdate');
     };
   }, [user]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (showMobileChat) {
+        setShowMobileChat(false);
+        setSelectedGroup(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [showMobileChat]);
 
   useKeyboard({
     'ctrl+k': () => setShowCommandPalette(true),
@@ -146,6 +159,9 @@ const handleSelectGroup = async group => {
   setSelectedGroup(group);
   setChatSearchTerm('');
   setChatSearchNav(null);
+  setShowMobileChat(true);
+  window.history.pushState({ mobileChat: true }, '');
+  
   const t = localStorage.getItem('token');
   if (!t) return;
   await fetch(`${API_LINK}/api/messages/groups/${group.group_id}/read`, {
@@ -158,6 +174,13 @@ const handleSelectGroup = async group => {
   fetchGroups(t);
 };
 
+const handleGroupExit = () => {
+  setSelectedGroup(null);
+  setShowMobileChat(false);
+  if (window.history.state?.mobileChat) {
+    window.history.back();
+  }
+};
 
   const filteredGroups = groups.filter(g =>
     (g.group_name || '').toLowerCase().includes(groupSearch.toLowerCase())
@@ -188,7 +211,7 @@ const handleSelectGroup = async group => {
   return (
     <>
       <div className={styles.chatPage}>
-        <div className={styles.sidebar}>
+        <div className={`${styles.sidebar} ${showMobileChat ? styles.hideMobile : ''}`}>
           <div className={styles.sidebarHeader}>
             <div className={styles.topIcons}>
               <div 
@@ -278,13 +301,14 @@ const handleSelectGroup = async group => {
             loading={groupsLoading}
           />
         </div>
-        <div className={styles.mainContent} role="main">
+        <div className={`${styles.mainContent} ${showMobileChat ? styles.showMobile : ''}`} role="main">
           {selectedGroup ? (
             <>
               <ChatHeader
                 group={selectedGroup}
                 onSearchChange={handleChatSearchChange}
                 onSearchNav={handleChatSearchNav}
+                onGroupExit={handleGroupExit}
               />
               <ChatWindow
                 group={selectedGroup}
@@ -352,11 +376,6 @@ const handleSelectGroup = async group => {
         isOpen={showShortcutsHelp}
         onClose={() => setShowShortcutsHelp(false)}
       />
-
-      {/* <FAB
-        onCommandPalette={() => setShowCommandPalette(true)}
-        onGlobalSearch={() => setShowGlobalSearch(true)}
-      /> */}
 
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </>
