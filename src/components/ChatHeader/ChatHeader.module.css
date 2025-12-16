@@ -665,4 +665,462 @@
     transform: translateY(0);
   }
 }
+.chatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--color-primaryLight);
+  border-bottom: 1px solid #5a8ba3;
+  position: relative;
+  z-index: 1;
+}
 
+.groupInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 24px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  padding: 0;
+  margin-right: 4px;
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.groupAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff, #e0e0e0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6fa8c4;
+  font-weight: 600;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.groupAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.groupDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupName {
+  font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0;
+}
+
+.groupMeta {
+  font-size: 13px;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 16px;
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  color: #ffffff;
+}
+
+.iconButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.searchOverlay {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -46px;
+  width: 80%;
+  max-width: 420px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  padding: 6px 10px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.searchInfo {
+  font-size: 12px;
+  color: #555;
+  min-width: 48px;
+  text-align: center;
+}
+
+.searchButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.navButton {
+  border: none;
+  background-color: #e5f3fb;
+  color: #336699;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconImage {
+  width: 20px;
+  height: 20px;
+  padding-top: 5px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+[data-theme="dark"] .iconImage {
+  filter: brightness(0) invert(1);
+}
+
+.menuWrapper {
+  position: relative;
+}
+
+.menuDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--color-surface);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--color-border);
+  min-width: 180px;
+  overflow: hidden;
+  z-index: 100;
+  animation: slideInDown 0.2s ease-out;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.menuItem:hover {
+  background-color: var(--color-surfaceHover);
+}
+
+.menuIcon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-overlay);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background: var(--color-surface);
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  animation: scaleIn 0.2s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--color-text);
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  font-size: 24px;
+  color: var(--color-textSecondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: var(--color-surfaceHover);
+  color: var(--color-text);
+}
+
+.modalSearchInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--color-background);
+  color: var(--color-text);
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.modalSearchInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(111, 168, 196, 0.1);
+}
+
+.userList {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 16px;
+  max-height: 400px;
+}
+
+.userList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.userList::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.userItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 0.2s;
+}
+
+.userItem:hover {
+  background-color: var(--color-surfaceHover);
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 2px;
+}
+
+.userEmail {
+  font-size: 12px;
+  color: var(--color-textSecondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inviteButton {
+  padding: 6px 16px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.inviteButton:hover {
+  background: var(--color-primaryHover);
+  transform: translateY(-1px);
+}
+
+.loading,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--color-textSecondary);
+}
+
+.emptyState p {
+  margin: 8px 0;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--color-textTertiary);
+}
+
+.emailInput {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+  max-width: 300px;
+  background: var(--color-background);
+  color: var(--color-text);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.emailInput:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(111, 168, 196, 0.1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .backButton {
+    display: flex;
+  }
+
+  .chatHeader {
+    padding: 8px 12px;
+  }
+
+  .groupInfo {
+    gap: 8px;
+  }
+
+  .groupAvatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .groupName {
+    font-size: 15px;
+  }
+
+  .groupMeta {
+    font-size: 12px;
+  }
+
+  .headerActions {
+    gap: 8px;
+  }
+
+  .iconButton {
+    padding: 6px;
+    font-size: 18px;
+  }
+
+  .searchOverlay {
+    width: 90%;
+    left: 5%;
+    transform: none;
+  }
+}

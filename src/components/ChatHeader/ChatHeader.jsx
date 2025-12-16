@@ -26,6 +26,7 @@ const ChatHeader = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [availableUsers, setAvailableUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef(null);
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -38,6 +39,15 @@ const ChatHeader = ({
       .toUpperCase()
       .slice(0, 2);
   };
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     setTerm(searchTerm || '');
@@ -100,6 +110,14 @@ const ChatHeader = ({
     setShowMenu(false);
     setShowAddUserModal(true);
     await fetchAvailableUsers();
+  };
+
+  const handleBackClick = () => {
+    if (onGroupExit) {
+      onGroupExit();
+    } else {
+      window.history.back();
+    }
   };
 
 const fetchAvailableUsers = async () => {
@@ -178,10 +196,20 @@ const handleExitGroup = async () => {
   }
 };
 
+  const filteredUsers = availableUsers.filter(u =>
+    u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <>
       <div className={styles.chatHeader} ref={containerRef}>
         <div className={styles.groupInfo}>
+          {isMobile && (
+            <button className={styles.backButton} onClick={handleBackClick}>
+              ←
+            </button>
+          )}
           <div className={styles.groupAvatar}>
             {group.group_image ? (
               <img
