@@ -102,81 +102,81 @@ const ChatHeader = ({
     await fetchAvailableUsers();
   };
 
-  const fetchAvailableUsers = async () => {
-    setLoadingUsers(true);
-    setAvailableUsers([]);
-    try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch(`${API_LINK}/api/groups/discover`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAvailableUsers(data.users || []);
-      }
-    } catch (error) {
-      console.error('Failed to load users:', error);
-    }
-    setLoadingUsers(false);
-  };
-
-  const handleInviteUser = async (email) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_LINK}/api/groups/${group.group_id}/invite`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ email })
-      });
-
-      if (response.ok) {
-        toast.success('Invitation sent successfully');
-        setShowAddUserModal(false);
-        setSearchQuery('');
-      } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to send invitation');
-      }
-    } catch {
-      toast.error('Failed to send invitation');
-    }
-  };
-
-  const handleExitGroup = async () => {
-    if (!window.confirm('Are you sure you want to exit this group?')) return;
+const fetchAvailableUsers = async () => {
+  setLoadingUsers(true);
+  setAvailableUsers([]);
+  try {
+    const token = localStorage.getItem('token');
     
-    setShowMenu(false);
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_LINK}/api/groups/${group.group_id}/leave`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        toast.success('You have left the group');
-        if (onGroupExit) onGroupExit();
-        navigate('/chat');
-      } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to exit group');
+    const response = await fetch(`${API_LINK}/api/groups/discover`, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true'
       }
-    } catch {
-      toast.error('Failed to exit group');
-    }
-  };
+    });
 
-  const filteredUsers = availableUsers.filter(u => 
-    u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    if (response.ok) {
+      const data = await response.json();
+      setAvailableUsers(data.users || []);
+    }
+  } catch (error) {
+    console.error('Failed to load users:', error);
+  }
+  setLoadingUsers(false);
+};
+
+const handleInviteUser = async (email) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_LINK}/api/groups/${group.group_id}/invite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true'
+      },
+      body: JSON.stringify({ email })
+    });
+
+    if (response.ok) {
+      toast.success('Invitation sent successfully');
+      setShowAddUserModal(false);
+      setSearchQuery('');
+    } else {
+      const error = await response.json();
+      toast.error(error.error || 'Failed to send invitation');
+    }
+  } catch {
+    toast.error('Failed to send invitation');
+  }
+};
+
+const handleExitGroup = async () => {
+  if (!window.confirm('Are you sure you want to exit this group?')) return;
+  
+  setShowMenu(false);
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_LINK}/api/groups/${group.group_id}/leave`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true'
+      }
+    });
+
+    if (response.ok) {
+      toast.success('You have left the group');
+      if (onGroupExit) onGroupExit();
+      navigate('/chat');
+    } else {
+      const error = await response.json();
+      toast.error(error.error || 'Failed to exit group');
+    }
+  } catch {
+    toast.error('Failed to exit group');
+  }
+};
 
   return (
     <>

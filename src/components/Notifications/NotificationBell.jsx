@@ -17,59 +17,70 @@ const NotificationBell = ({ userId, token }) => {
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  const fetchNotifications = async () => {
-    if (!token) return;
-    try {
-      const res = await fetch(`${API_LINK}/api/notifications?unread_only=true`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) return;
-      const data = await res.json();
-      setUnreadCount(data.unread_count || 0);
-      setNotifications(data.notifications || []);
-    } catch {}
-  };
-
-  const markAllRead = async () => {
-    if (!token || unreadCount === 0) return;
-    const ids = notifications.map(n => n.notification_id);
-    if (!ids.length) return;
-    try {
-      await fetch(`${API_LINK}/api/notifications/mark-read`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ notification_ids: ids })
-      });
-      setUnreadCount(0);
-      setNotifications([]);
-      toast.success('All notifications marked as read');
-    } catch {
-      toast.error('Failed to mark notifications as read');
-    }
-  };
-
-  const handleJoinAction = async (notificationId, action) => {
-    if (!token) return;
-    setLoadingAction(true);
-    try {
-      const res = await fetch(`${API_LINK}/api/notifications/join-request/action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ notification_id: notificationId, action })
-      });
-      if (res.ok) {
-        fetchNotifications();
-        toast.success(action === 'accept' ? 'User added to group successfully' : 'Request declined');
-      } else {
-        const err = await res.json();
-        toast.error(err.error || 'Failed to process request');
+const fetchNotifications = async () => {
+  if (!token) return;
+  try {
+    const res = await fetch(`${API_LINK}/api/notifications?unread_only=true`, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true'
       }
-    } catch {
-      toast.error('Failed to process request');
-    } finally {
-      setLoadingAction(false);
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    setUnreadCount(data.unread_count || 0);
+    setNotifications(data.notifications || []);
+  } catch {}
+};
+
+const markAllRead = async () => {
+  if (!token || unreadCount === 0) return;
+  const ids = notifications.map(n => n.notification_id);
+  if (!ids.length) return;
+  try {
+    await fetch(`${API_LINK}/api/notifications/mark-read`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json', 
+        Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true'
+      },
+      body: JSON.stringify({ notification_ids: ids })
+    });
+    setUnreadCount(0);
+    setNotifications([]);
+    toast.success('All notifications marked as read');
+  } catch {
+    toast.error('Failed to mark notifications as read');
+  }
+};
+
+const handleJoinAction = async (notificationId, action) => {
+  if (!token) return;
+  setLoadingAction(true);
+  try {
+    const res = await fetch(`${API_LINK}/api/notifications/join-request/action`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json', 
+        Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning': 'true'
+      },
+      body: JSON.stringify({ notification_id: notificationId, action })
+    });
+    if (res.ok) {
+      fetchNotifications();
+      toast.success(action === 'accept' ? 'User added to group successfully' : 'Request declined');
+    } else {
+      const err = await res.json();
+      toast.error(err.error || 'Failed to process request');
     }
-  };
+  } catch {
+    toast.error('Failed to process request');
+  } finally {
+    setLoadingAction(false);
+  }
+};
 
   const updateDropdownPosition = () => {
     if (buttonRef.current) {

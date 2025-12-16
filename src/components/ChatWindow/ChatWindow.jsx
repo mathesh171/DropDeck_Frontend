@@ -71,86 +71,90 @@ const ChatWindow = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typingUsers]);
 
-  const fetchMessages = async () => {
-    if (!group) return;
-    setLoading(true);
+const fetchMessages = async () => {
+  if (!group) return;
+  setLoading(true);
+  const token = localStorage.getItem('token');
+  try {
+    const response = await fetch(
+      `${API_LINK}/api/messages/groups/${group.group_id}/messages?limit=200&offset=0`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
+        }
+      }
+    );
+    if (response.ok) {
+      const data = await response.json();
+      setMessages(data.messages || []);
+    }
+  } catch {
+  }
+  setLoading(false);
+};
+
+const handleSendMessage = async (content, messageType = 'text', file) => {
+  try {
     const token = localStorage.getItem('token');
-    try {
-      const response = await fetch(
-        `${API_LINK}/api/messages/groups/${group.group_id}/messages?limit=200&offset=0`,
+
+    if (messageType === 'file' && file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const uploadRes = await fetch(
+        `${API_LINK}/api/files/groups/${group.group_id}/files/upload`,
         {
+          method: 'POST',
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true'
+          },
+          body: formData
         }
       );
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data.messages || []);
+      if (!uploadRes.ok) return;
+
+      await fetchMessages();
+      if (onNewMessage) onNewMessage();
+    } else {
+      const payload = { 
+        content, 
+        message_type: messageType 
+      };
+      
+      if (replyTo) {
+        payload.reply_to = replyTo.message_id;
       }
-    } catch {
-    }
-    setLoading(false);
-  };
 
-  const handleSendMessage = async (content, messageType = 'text', file) => {
-    try {
-      const token = localStorage.getItem('token');
-
-      if (messageType === 'file' && file) {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const uploadRes = await fetch(
-          `${API_LINK}/api/files/groups/${group.group_id}/files/upload`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`
-            },
-            body: formData
-          }
-        );
-        if (!uploadRes.ok) return;
-
-        await fetchMessages();
-        if (onNewMessage) onNewMessage();
-      } else {
-        const payload = { 
-          content, 
-          message_type: messageType 
-        };
-        
-        if (replyTo) {
-          payload.reply_to = replyTo.message_id;
+      await fetch(
+        `${API_LINK}/api/messages/groups/${group.group_id}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            'ngrok-skip-browser-warning': 'true'
+          },
+          body: JSON.stringify(payload)
         }
+      );
 
-        await fetch(
-          `${API_LINK}/api/messages/groups/${group.group_id}/messages`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(payload)
-          }
-        );
-
-        socket.emit('sendMessage', { groupId: group.group_id });
-        socket.emit('stopTyping', { 
-          groupId: group.group_id, 
-          userId: user?.user_id,
-          userName: user?.name 
-        });
-        
-        setReplyTo(null);
-        await fetchMessages();
-        if (onNewMessage) onNewMessage();
-      }
-    } catch {
+      socket.emit('sendMessage', { groupId: group.group_id });
+      socket.emit('stopTyping', { 
+        groupId: group.group_id, 
+        userId: user?.user_id,
+        userName: user?.name 
+      });
+      
+      setReplyTo(null);
+      await fetchMessages();
+      if (onNewMessage) onNewMessage();
     }
-  };
+  } catch {
+  }
+};
+
 
   const handleTyping = () => {
     socket.emit('typing', { 
