@@ -109,49 +109,55 @@ const ChatPage = () => {
     }
   }, [showCommandPalette, showGlobalSearch, showShortcutsHelp, showProfile, groups, selectedGroup, selectedGroupIndex, showSearchBar]);
 
-  const fetchUserProfile = async storedToken => {
-    try {
-      const response = await fetch(`${API_LINK}/api/auth/profile`, {
-        headers: { Authorization: `Bearer ${storedToken}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
-      }
-    } catch {}
-  };
-
-  const fetchGroups = async storedToken => {
-    setGroupsLoading(true);
-    try {
-      const response = await fetch(`${API_LINK}/api/groups`, {
-        headers: {
-          Authorization: `Bearer ${storedToken || localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const list = data.groups || data || [];
-        setGroups(list);
-      }
-    } catch {}
-    setGroupsLoading(false);
-  };
-
-  const handleSelectGroup = async group => {
-    setSelectedGroup(group);
-    setChatSearchTerm('');
-    setChatSearchNav(null);
-    const t = localStorage.getItem('token');
-    if (!t) return;
-    await fetch(`${API_LINK}/api/messages/groups/${group.group_id}/read`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${t}`
+const fetchUserProfile = async storedToken => {
+  try {
+    const response = await fetch(`${API_LINK}/api/auth/profile`, {
+      headers: { 
+        Authorization: `Bearer ${storedToken}`,
+        'ngrok-skip-browser-warning': 'true'
       }
     });
-    fetchGroups(t);
-  };
+    if (response.ok) {
+      const data = await response.json();
+      setUser(data.user);
+    }
+  } catch {}
+};
+
+const fetchGroups = async storedToken => {
+  setGroupsLoading(true);
+  try {
+    const response = await fetch(`${API_LINK}/api/groups`, {
+      headers: {
+        Authorization: `Bearer ${storedToken || localStorage.getItem('token')}`,
+        'ngrok-skip-browser-warning': 'true'
+      }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      const list = data.groups || data || [];
+      setGroups(list);
+    }
+  } catch {}
+  setGroupsLoading(false);
+};
+
+const handleSelectGroup = async group => {
+  setSelectedGroup(group);
+  setChatSearchTerm('');
+  setChatSearchNav(null);
+  const t = localStorage.getItem('token');
+  if (!t) return;
+  await fetch(`${API_LINK}/api/messages/groups/${group.group_id}/read`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${t}`,
+      'ngrok-skip-browser-warning': 'true'
+    }
+  });
+  fetchGroups(t);
+};
+
 
   const filteredGroups = groups.filter(g =>
     (g.group_name || '').toLowerCase().includes(groupSearch.toLowerCase())
