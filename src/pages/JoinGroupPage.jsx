@@ -25,7 +25,10 @@ const JoinGroupPage = () => {
     setError('');
     try {
       const response = await fetch(`${API_LINK}/api/groups/discover`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true'
+        }
       });
 
       if (!response.ok) {
@@ -36,19 +39,20 @@ const JoinGroupPage = () => {
       }
 
       const data = await response.json();
-      const all = data.groups || data;
+      const all = data.groups || data || [];
       const visible = all.filter(
         (g) => g.access_type === 'public' || g.access_type === 'approval'
       );
-
       setGroups(visible);
-    } catch {
+    } catch (err) {
+      console.error('Fetch error:', err);
       setError('Network error. Try again.');
       setGroups([]);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleJoin = async (group) => {
     const token = localStorage.getItem('token');
